@@ -1,0 +1,6 @@
+bases:
+  - ../../samplechart
+  - ../../base
+patchesStrategicMerge:
+  - image.yaml
+  - chart.yaml

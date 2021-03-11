@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elastic-operator
+  namespace: elastic-system
+  labels:
+    control-plane: elastic-operator
+spec:
+  selector:
+    matchLabels:
+      control-plane: elastic-operator
+  serviceName: elastic-operator
+  template:
+    spec:
+      containers:
+      - image: docker.artifactory.dg-gov.shift.custom.com/eck/eck-operator:1.1.1
+        name: manager
+        env:
+          - name: OPERATOR_IMAGE
+            value: docker.artifactory.dg-gov.shift.custom.com/eck/eck-operator:1.1.1 
+ 
