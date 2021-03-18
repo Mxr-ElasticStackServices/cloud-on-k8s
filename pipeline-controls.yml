@@ -49,3 +49,26 @@ deploy:
 #                appendNamespace: false
 #                values:
 #                  - values/govcloud/values.yaml
+variables:
+  sources:
+    sharedservices-commercial:
+      type: 'github_file'
+      org: 'Mxr-ElasticStackServices'
+      repo: 'configs'
+      branch: 'main'
+      path: 'cloud-on-k8s/config.yml'
+      clientId: 'github-com'
+      # Load for commerical
+      filter:
+        partition:
+        - 'commercial'
+    sc2s:
+      type: 'gitlab_file'
+      org: 'Mxr-ElasticStackServices'
+      repo: 'configs'
+      branch: 'main'
+      path: 'cloud-on-k8s/config.yml'
+      # Load for sc2s
+      filter:
+        partition:
+        - 'sc2s'
