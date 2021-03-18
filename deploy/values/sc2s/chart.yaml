@@ -1,0 +1,9 @@
+apiVersion: v2
+kind: Chart
+metadata:
+  name: Chart.yaml 
+name: elastic-operator
+description: Kustomized chart that has been created from version of elastic operator specified in appVersion here 
+version: 0.1.1
+appVersion: 1.2.0
+

@@ -1,16 +1,51 @@
+pipeline_controls_version: '1.0'
+build:
+  api_version: '1.0'
 config:
-  p2020:
-      domain: 'elastic-system'
-  needsBuild: false
+  build_type: 'helm_only'   
 deploy:
   properties:
-    helmVersion: '3.2'
-    namespace: 'elastic-system'
+    helmVersion: '3' 
+    namespace: elastic-system
+    valuesDirectory: values
+    runTests: false
+    cleanupTests: false
+    helmTimeout: 300
     charts:
-    - path: generated/com_gov/elastic-operator
-      appendNamespace: false
+      elastic-operator:
+        path: eck-operator
   deploys:
     devint:
       targets:
         essdev-k8s-commercial-dev:
           active: true
+          properties:
+            charts:
+              elastic-operator:
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+                  - values/commercial/values.yaml
+#    shared-services:
+#      targets:
+#        ess-k8s-commercial-shared-services:
+#          active: false
+#          properties:
+#            charts:
+#              elastic-operator:
+#                path: deploy/eck-operator
+#                name: elastic-operator
+#                appendNamespace: false
+#                values:
+#                  - values/commercial/values.yaml
+#        ess-k8s-govcloud-shared-services:
+#          active: false
+#          properties:
+#            charts:
+#              elastic-operator:
+#                path: deploy/eck-operator
+#                name: elastic-operator
+#                appendNamespace: false
+#                values:
+#                  - values/govcloud/values.yaml
