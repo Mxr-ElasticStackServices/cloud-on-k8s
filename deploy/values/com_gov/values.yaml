@@ -126,7 +126,7 @@ config:
   metricsPort: "0"
 
   # containerRegistry to use for pulling Elasticsearch and other application container images.
-  containerRegistry: docker.elastic.co
+  containerRegistry: docker.artpro.digitalglobe.com:443
 
   # maxConcurrentReconciles is the number of concurrent reconciliation operations to perform per controller.
   maxConcurrentReconciles: "3"

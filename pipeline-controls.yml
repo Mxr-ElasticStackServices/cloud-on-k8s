@@ -1,0 +1,74 @@
+pipeline_controls_version: '1.0'
+build:
+  api_version: '1.0'
+config:
+  build_type: 'helm_only'   
+deploy:
+  properties:
+    helmVersion: '3' 
+    namespace: elastic-system
+    valuesDirectory: values
+    runTests: false
+    cleanupTests: false
+    helmTimeout: 300
+    charts:
+      elastic-operator:
+        path: deploy/eck-operator
+  deploys:
+    devint:
+      targets:
+        essdev-k8s-commercial-dev:
+          active: true
+          properties:
+            charts:
+              elastic-operator:
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+                  - values/commercial/values.yaml
+#    shared-services:
+#      targets:
+#        ess-k8s-commercial-shared-services:
+#          active: false
+#          properties:
+#            charts:
+#              elastic-operator:
+#                path: deploy/eck-operator
+#                name: elastic-operator
+#                appendNamespace: false
+#                values:
+#                  - values/commercial/values.yaml
+#        ess-k8s-govcloud-shared-services:
+#          active: false
+#          properties:
+#            charts:
+#              elastic-operator:
+#                path: deploy/eck-operator
+#                name: elastic-operator
+#                appendNamespace: false
+#                values:
+#                  - values/govcloud/values.yaml
+variables:
+  sources:
+    sharedservices-commercial:
+      type: 'github_file'
+      org: 'Mxr-ElasticStackServices'
+      repo: 'configs'
+      branch: 'main'
+      path: 'cloud-on-k8s/config.yml'
+      clientId: 'github-com'
+      # Load for commerical
+      filter:
+        partition:
+        - 'commercial'
+    sc2s:
+      type: 'gitlab_file'
+      org: 'Mxr-ElasticStackServices'
+      repo: 'configs'
+      branch: 'main'
+      path: 'cloud-on-k8s/config.yml'
+      # Load for sc2s
+      filter:
+        partition:
+        - 'sc2s'
