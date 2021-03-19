@@ -13,7 +13,7 @@ deploy:
     helmTimeout: 300
     charts:
       elastic-operator:
-        path: eck-operator
+        path: deploy/eck-operator
   deploys:
     devint:
       targets:
