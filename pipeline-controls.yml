@@ -59,6 +59,16 @@ deploy:
                 appendNamespace: false
                 values:
                   - values/sc2s/values.yaml
+        ess-k8s-v3r-shared-services:
+          active: true
+          properties:
+            charts:
+              elastic-operator:
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+                  - values/v3r/values.yaml                  
 variables:
   sources:
     sharedservices-commercial:
@@ -82,3 +92,13 @@ variables:
       filter:
         partition:
         - 'sc2s'
+    sc2s:
+      type: 'github_file'
+      org: 'Mxr-ElasticStackServices'
+      repo: 'configs'
+      branch: 'main'
+      path: 'cloud-on-k8s/config.yml'
+      # Load for sc2s
+      filter:
+        partition:
+        - 'v3r'        
