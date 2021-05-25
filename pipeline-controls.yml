@@ -71,34 +71,34 @@ deploy:
                   - values/v3r/values.yaml                  
 variables:
   sources:
-    sharedservices-commercial:
-      type: 'github_file'
-      org: 'Mxr-ElasticStackServices'
-      repo: 'configs'
-      branch: 'main'
-      path: 'cloud-on-k8s/config.yml'
-      clientId: 'github-com'
-      # Load for commerical
-      filter:
-        partition:
-        - 'commercial'
-    sc2s:
-      type: 'gitlab_file'
-      org: 'Mxr-ElasticStackServices'
-      repo: 'configs'
-      branch: 'main'
-      path: 'cloud-on-k8s/config.yml'
-      # Load for sc2s
-      filter:
-        partition:
-        - 'sc2s'
-    sc2s:
-      type: 'github_file'
-      org: 'Mxr-ElasticStackServices'
-      repo: 'configs'
-      branch: 'main'
-      path: 'cloud-on-k8s/config.yml'
-      # Load for sc2s
-      filter:
-        partition:
-        - 'v3r'        
+#    sharedservices-commercial:
+#      type: 'github_file'
+#      org: 'Mxr-ElasticStackServices'
+#      repo: 'configs'
+#      branch: 'main'
+#      path: 'cloud-on-k8s/config.yml'
+#      clientId: 'github-com'
+#      # Load for commerical
+#      filter:
+#        partition:
+#        - 'commercial'
+#    sc2s:
+#      type: 'gitlab_file'
+#      org: 'Mxr-ElasticStackServices'
+#      repo: 'configs'
+#      branch: 'main'
+#      path: 'cloud-on-k8s/config.yml'
+#      # Load for sc2s
+#      filter:
+#        partition:
+#        - 'sc2s'
+#    v3r:
+#      type: 'github_file'
+#      org: 'Mxr-ElasticStackServices'
+#      repo: 'configs'
+#      branch: 'main'
+#      path: 'cloud-on-k8s/config.yml'
+#      # Load for sc2s
+#      filter:
+#        partition:
+#        - 'v3r'        
