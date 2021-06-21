@@ -1,0 +1,104 @@
+pipeline_controls_version: '1.0'
+build:
+  api_version: '1.0'
+config:
+  build_type: 'helm_only'   
+deploy:
+  properties:
+    helmVersion: '3' 
+    namespace: elastic-system
+    valuesDirectory: values
+    runTests: false
+    cleanupTests: false
+    helmTimeout: 300
+    charts:
+      elastic-operator:
+        path: deploy/eck-operator
+  deploys:
+    devint:
+      targets:
+        essdev-k8s-commercial-dev:
+          active: true
+          properties:
+            charts:
+              elastic-operator:
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+                  - values/envs/devint/essdev_values.yaml
+    shared-services:
+      targets:
+#        ess-k8s-commercial-shared-services:
+#          active: false
+#          properties:
+#            charts:
+#              elastic-operator:
+#                path: deploy/eck-operator
+#                name: elastic-operator
+#                appendNamespace: false
+#                values:
+#                  - values/envs/sharedservices/commercial_values.yaml
+#        ess-k8s-govcloud-shared-services:
+#          active: false
+#          properties:
+#            charts:
+#              elastic-operator:
+#                path: deploy/eck-operator
+#                name: elastic-operator
+#                appendNamespace: false
+#                values:
+#                  - values/envs/sharedservices/govcloud_values.yaml
+        ess-k8s-sc2s-shared-services:
+          active: false
+          properties:
+            charts:
+              elastic-operator:
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+                  - values/envs/sharedservices/sc2s_values.yaml
+        ess-k8s-v3r-shared-services:
+          active: false
+          properties:
+            charts:
+              elastic-operator:
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+                  - values/envs/sharedservices/v3r_values.yaml                  
+variables:
+  sources:
+#    sharedservices-commercial:
+#      type: 'github_file'
+#      org: 'Mxr-ElasticStackServices'
+#      repo: 'configs'
+#      branch: 'main'
+#      path: 'cloud-on-k8s/config.yml'
+#      clientId: 'github-com'
+#      # Load for commerical
+#      filter:
+#        partition:
+#        - 'commercial'
+#    sc2s:
+#      type: 'gitlab_file'
+#      org: 'Mxr-ElasticStackServices'
+#      repo: 'configs'
+#      branch: 'main'
+#      path: 'cloud-on-k8s/config.yml'
+#      # Load for sc2s
+#      filter:
+#        partition:
+#        - 'sc2s'
+#    v3r:
+#      type: 'github_file'
+#      org: 'Mxr-ElasticStackServices'
+#      repo: 'configs'
+#      branch: 'main'
+#      path: 'cloud-on-k8s/config.yml'
+#      # Load for sc2s
+#      filter:
+#        partition:
+#        - 'v3r'        
