@@ -5,23 +5,25 @@
 package license
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-
 	apmv1 "github.com/elastic/cloud-on-k8s/pkg/apis/apm/v1"
 	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
+	entv1 "github.com/elastic/cloud-on-k8s/pkg/apis/enterprisesearch/v1"
 	kbv1 "github.com/elastic/cloud-on-k8s/pkg/apis/kibana/v1"
 	"github.com/elastic/cloud-on-k8s/pkg/controller/apmserver"
 	"github.com/elastic/cloud-on-k8s/pkg/controller/elasticsearch/nodespec"
 	essettings "github.com/elastic/cloud-on-k8s/pkg/controller/elasticsearch/settings"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/enterprisesearch"
 	"github.com/elastic/cloud-on-k8s/pkg/controller/kibana"
 	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
+	"github.com/pkg/errors"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 // Aggregator aggregates the total of resources of all Elastic managed components
@@ -39,6 +41,7 @@ func (a Aggregator) AggregateMemory() (resource.Quantity, error) {
 		a.aggregateElasticsearchMemory,
 		a.aggregateKibanaMemory,
 		a.aggregateApmServerMemory,
+		a.aggregateEnterpriseSearchMemory,
 	} {
 		memory, err := f()
 		if err != nil {
@@ -52,7 +55,7 @@ func (a Aggregator) AggregateMemory() (resource.Quantity, error) {
 
 func (a Aggregator) aggregateElasticsearchMemory() (resource.Quantity, error) {
 	var esList esv1.ElasticsearchList
-	err := a.client.List(&esList)
+	err := a.client.List(context.Background(), &esList)
 	if err != nil {
 		return resource.Quantity{}, errors.Wrap(err, "failed to aggregate Elasticsearch memory")
 	}
@@ -79,9 +82,36 @@ func (a Aggregator) aggregateElasticsearchMemory() (resource.Quantity, error) {
 	return total, nil
 }
 
+func (a Aggregator) aggregateEnterpriseSearchMemory() (resource.Quantity, error) {
+	var entList entv1.EnterpriseSearchList
+	err := a.client.List(context.Background(), &entList)
+	if err != nil {
+		return resource.Quantity{}, errors.Wrap(err, "failed to aggregate Enterprise Search memory")
+	}
+
+	var total resource.Quantity
+	for _, ent := range entList.Items {
+		mem, err := containerMemLimits(
+			ent.Spec.PodTemplate.Spec.Containers,
+			entv1.EnterpriseSearchContainerName,
+			enterprisesearch.EnvJavaOpts, memFromJavaOpts,
+			enterprisesearch.DefaultMemoryLimits,
+		)
+		if err != nil {
+			return resource.Quantity{}, errors.Wrap(err, "failed to aggregate Enterprise Search memory")
+		}
+
+		total.Add(multiply(mem, ent.Spec.Count))
+		log.V(1).Info("Collecting", "namespace", ent.Namespace, "ent_name", ent.Name,
+			"memory", mem.String(), "count", ent.Spec.Count)
+	}
+
+	return total, nil
+}
+
 func (a Aggregator) aggregateKibanaMemory() (resource.Quantity, error) {
 	var kbList kbv1.KibanaList
-	err := a.client.List(&kbList)
+	err := a.client.List(context.Background(), &kbList)
 	if err != nil {
 		return resource.Quantity{}, errors.Wrap(err, "failed to aggregate Kibana memory")
 	}
@@ -108,7 +138,7 @@ func (a Aggregator) aggregateKibanaMemory() (resource.Quantity, error) {
 
 func (a Aggregator) aggregateApmServerMemory() (resource.Quantity, error) {
 	var asList apmv1.ApmServerList
-	err := a.client.List(&asList)
+	err := a.client.List(context.Background(), &asList)
 	if err != nil {
 		return resource.Quantity{}, errors.Wrap(err, "failed to aggregate APM Server memory")
 	}
@@ -144,6 +174,7 @@ func containerMemLimits(
 ) (resource.Quantity, error) {
 	var mem resource.Quantity
 	for _, container := range containers {
+		//nolint:nestif
 		if container.Name == containerName {
 			mem = *container.Resources.Limits.Memory()
 

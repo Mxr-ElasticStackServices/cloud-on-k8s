@@ -9,6 +9,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"testing"
 
 	"github.com/elastic/cloud-on-k8s/pkg/controller/common"
@@ -55,6 +56,20 @@ var emptyTrialLicenseFixture = EnterpriseLicense{
 	},
 }
 
+func externallySignedLicenseFixture() (EnterpriseLicense, error) {
+	exptectedBytes, err := ioutil.ReadFile("testdata/externally-generated-lic.json")
+	if err != nil {
+		return EnterpriseLicense{}, err
+	}
+
+	var lic EnterpriseLicense
+	err = json.Unmarshal(exptectedBytes, &lic)
+	if err != nil {
+		return EnterpriseLicense{}, err
+	}
+	return lic, nil
+}
+
 func withSignature(l EnterpriseLicense, sig []byte) EnterpriseLicense {
 	l.License.Signature = string(sig)
 	return l
@@ -89,12 +104,14 @@ func asRuntimeObjects(l EnterpriseLicense, sig []byte) []runtime.Object {
 }
 
 func publicKeyBytesFixture(t *testing.T) []byte {
+	t.Helper()
 	bytes, err := x509.MarshalPKIXPublicKey(publicKeyFixture(t))
 	require.NoError(t, err)
 	return bytes
 }
 
 func publicKeyFixture(t *testing.T) *rsa.PublicKey {
+	t.Helper()
 	key, err := x509.ParsePKCS1PrivateKey(privateKeyFixture)
 	require.NoError(t, err)
 	return &key.PublicKey

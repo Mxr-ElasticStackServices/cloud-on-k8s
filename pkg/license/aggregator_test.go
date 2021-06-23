@@ -6,12 +6,14 @@ package license
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"os"
 	"testing"
 
 	apmv1 "github.com/elastic/cloud-on-k8s/pkg/apis/apm/v1"
 	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
+	entv1 "github.com/elastic/cloud-on-k8s/pkg/apis/enterprisesearch/v1"
 	kbv1 "github.com/elastic/cloud-on-k8s/pkg/apis/kibana/v1"
 	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
 	"github.com/stretchr/testify/assert"
@@ -137,12 +139,12 @@ func TestMemFromNodeOpts(t *testing.T) {
 
 func TestAggregator(t *testing.T) {
 	objects := readObjects(t, "testdata/stack.yaml")
-	client := k8s.WrappedFakeClient(objects...)
+	client := k8s.NewFakeClient(objects...)
 	aggregator := Aggregator{client: client}
 
 	val, err := aggregator.AggregateMemory()
 	require.NoError(t, err)
-	require.Equal(t, 324.1705472, inGB(val))
+	require.Equal(t, 349.940350976, inGB(val))
 }
 
 func readObjects(t *testing.T, filePath string) []runtime.Object {
@@ -152,6 +154,7 @@ func readObjects(t *testing.T, filePath string) []runtime.Object {
 	scheme.AddKnownTypes(esv1.GroupVersion, &esv1.Elasticsearch{}, &esv1.ElasticsearchList{})
 	scheme.AddKnownTypes(kbv1.GroupVersion, &kbv1.Kibana{}, &kbv1.KibanaList{})
 	scheme.AddKnownTypes(apmv1.GroupVersion, &apmv1.ApmServer{}, &apmv1.ApmServerList{})
+	scheme.AddKnownTypes(entv1.GroupVersion, &entv1.EnterpriseSearch{}, &entv1.EnterpriseSearchList{})
 	decoder := serializer.NewCodecFactory(scheme).UniversalDeserializer()
 
 	f, err := os.Open(filePath)
@@ -166,7 +169,7 @@ func readObjects(t *testing.T, filePath string) []runtime.Object {
 	for {
 		yamlBytes, err := yamlReader.Read()
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 

@@ -9,14 +9,15 @@ package agent
 import (
 	"path"
 	"testing"
+	"strings"
 
 	agentv1alpha1 "github.com/elastic/cloud-on-k8s/pkg/apis/agent/v1alpha1"
 	"github.com/elastic/cloud-on-k8s/pkg/controller/common/version"
 	"github.com/elastic/cloud-on-k8s/test/e2e/test"
 	"github.com/elastic/cloud-on-k8s/test/e2e/test/agent"
 	"github.com/elastic/cloud-on-k8s/test/e2e/test/helper"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/rand"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func TestSystemIntegrationRecipe(t *testing.T) {
@@ -42,6 +43,7 @@ func TestSystemIntegrationRecipe(t *testing.T) {
 }
 
 func TestKubernetesIntegrationRecipe(t *testing.T) {
+	t.Skip() // pending resolution of https://github.com/elastic/cloud-on-k8s/issues/4360
 	customize := func(builder agent.Builder) agent.Builder {
 		return builder.
 			WithRoles(agent.PSPClusterRoleName).
@@ -67,7 +69,7 @@ func runBeatRecipe(
 	t *testing.T,
 	fileName string,
 	customize func(builder agent.Builder) agent.Builder,
-	additionalObjects ...runtime.Object,
+	additionalObjects ...client.Object,
 ) {
 	filePath := path.Join("../../../config/recipes/elastic-agent", fileName)
 	namespace := test.Ctx().ManagedNamespace(0)
@@ -90,7 +92,7 @@ func runBeatRecipe(
 
 		// OpenShift requires different securityContext than provided in the recipe.
 		// Skipping it altogether to reduce maintenance burden.
-		if test.Ctx().Provider == "ocp" {
+		if strings.HasPrefix(test.Ctx().Provider, "ocp") {
 			t.SkipNow()
 		}
 
@@ -110,5 +112,5 @@ func runBeatRecipe(
 func isStackIncompatible(agent agentv1alpha1.Agent) bool {
 	stackVersion := version.MustParse(test.Ctx().ElasticStackVersion)
 	agentVersion := version.MustParse(agent.Spec.Version)
-	return agentVersion.IsAfter(stackVersion)
+	return agentVersion.GT(stackVersion)
 }

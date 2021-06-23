@@ -5,6 +5,7 @@
 package controller
 
 import (
+	"context"
 	"strings"
 
 	apmv1 "github.com/elastic/cloud-on-k8s/pkg/apis/apm/v1"
@@ -59,23 +60,28 @@ func AddApmES(mgr manager.Manager, accessReviewer rbac.AccessReviewer, params op
 	})
 }
 
-func getElasticsearchExternalURL(c k8s.Client, association commonv1.Association) (string, error) {
-	esRef := association.AssociationRef()
+func getElasticsearchExternalURL(c k8s.Client, assoc commonv1.Association) (string, error) {
+	esRef := assoc.AssociationRef()
 	if !esRef.IsDefined() {
 		return "", nil
 	}
 	es := esv1.Elasticsearch{}
-	if err := c.Get(esRef.NamespacedName(), &es); err != nil {
+	if err := c.Get(context.Background(), esRef.NamespacedName(), &es); err != nil {
 		return "", err
 	}
-	return services.ExternalServiceURL(es), nil
+	serviceName := esRef.ServiceName
+	if serviceName == "" {
+		serviceName = services.ExternalServiceName(es.Name)
+	}
+	nsn := types.NamespacedName{Name: serviceName, Namespace: es.Namespace}
+	return association.ServiceURL(c, nsn, es.Spec.HTTP.Protocol())
 }
 
 // referencedElasticsearchStatusVersion returns the currently running version of Elasticsearch
 // reported in its status.
 func referencedElasticsearchStatusVersion(c k8s.Client, esRef types.NamespacedName) (string, error) {
 	var es esv1.Elasticsearch
-	if err := c.Get(esRef, &es); err != nil {
+	if err := c.Get(context.Background(), esRef, &es); err != nil {
 		return "", err
 	}
 	return es.Status.Version, nil
@@ -98,7 +104,7 @@ func getAPMElasticsearchRoles(associated commonv1.Associated) (string, error) {
 	}
 
 	// 7.5.x and above
-	if v.IsSameOrAfter(version.From(7, 5, 0)) {
+	if v.GTE(version.From(7, 5, 0)) {
 		return strings.Join([]string{
 			user.ApmUserRoleV75, // Retrieve cluster details (e.g. version) and manage apm-* indices
 			"ingest_admin",      // Set up index templates
@@ -107,7 +113,7 @@ func getAPMElasticsearchRoles(associated commonv1.Associated) (string, error) {
 	}
 
 	// 7.1.x to 7.4.x
-	if v.IsSameOrAfter(version.From(7, 1, 0)) {
+	if v.GTE(version.From(7, 1, 0)) {
 		return strings.Join([]string{
 			user.ApmUserRoleV7, // Retrieve cluster details (e.g. version) and manage apm-* indices
 			"ingest_admin",     // Set up index templates

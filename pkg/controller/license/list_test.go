@@ -12,26 +12,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
 	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
 )
 
-type failingClient struct {
-	k8s.Client
-	Error error
-}
-
-func (f *failingClient) List(list runtime.Object, opts ...client.ListOption) error {
-	return f.Error
-}
-
-var _ k8s.Client = &failingClient{}
-
 func Test_listAffectedLicenses(t *testing.T) {
-	true := true
+	trueVal := true
 
 	type args struct {
 		initialObjects []runtime.Object
@@ -67,29 +55,30 @@ func Test_listAffectedLicenses(t *testing.T) {
 				{
 					NamespacedName: types.NamespacedName{
 						Namespace: "default",
-						Name:      "foo-cluster",
+						Name:      "bar-cluster",
 					},
 				},
 				{
 					NamespacedName: types.NamespacedName{
 						Namespace: "default",
-						Name:      "bar-cluster",
+						Name:      "foo-cluster",
 					},
-				}},
+				},
+			},
 			wantErr: false,
 		},
 		{
 			name:          "list error",
 			args:          args{},
 			injectedError: errors.New("listing failed"),
-			wantErr:       true,
+			wantErr:       trueVal,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := k8s.WrappedFakeClient(tt.args.initialObjects...)
+			client := k8s.NewFakeClient(tt.args.initialObjects...)
 			if tt.injectedError != nil {
-				client = &failingClient{Client: client, Error: tt.injectedError}
+				client = k8s.NewFailingClient(tt.injectedError)
 			}
 
 			got, err := reconcileRequestsForAllClusters(client)

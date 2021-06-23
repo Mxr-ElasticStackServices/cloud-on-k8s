@@ -5,6 +5,7 @@
 package common
 
 import (
+	"context"
 	"testing"
 
 	beatv1beta1 "github.com/elastic/cloud-on-k8s/pkg/apis/beat/v1beta1"
@@ -33,7 +34,7 @@ func Test_reconcileDaemonSet(t *testing.T) {
 		{
 			name: "propagates strategy",
 			args: ReconciliationParams{
-				client: k8s.WrapClient(k8s.FakeClient()),
+				client: k8s.NewFakeClient(),
 				beat: beatv1beta1.Beat{
 					Spec: beatv1beta1.BeatSpec{
 						DaemonSet: &beatv1beta1.DaemonSetSpec{
@@ -56,7 +57,7 @@ func Test_reconcileDaemonSet(t *testing.T) {
 		{
 			name: "propagates pod template",
 			args: ReconciliationParams{
-				client: k8s.WrapClient(k8s.FakeClient()),
+				client: k8s.NewFakeClient(),
 				beat: beatv1beta1.Beat{
 					Spec: beatv1beta1.BeatSpec{
 						DaemonSet: &beatv1beta1.DaemonSetSpec{},
@@ -75,7 +76,7 @@ func Test_reconcileDaemonSet(t *testing.T) {
 		{
 			name: "propagates labels and owner",
 			args: ReconciliationParams{
-				client: k8s.WrapClient(k8s.FakeClient()),
+				client: k8s.NewFakeClient(),
 				beat: beatv1beta1.Beat{
 					ObjectMeta: metav1.ObjectMeta{Name: "my-beat", Namespace: "my-namespace"},
 					Spec: beatv1beta1.BeatSpec{
@@ -88,7 +89,6 @@ func Test_reconcileDaemonSet(t *testing.T) {
 				require.True(t, maps.IsSubset(beat.Labels, daemonSet.Spec.Selector.MatchLabels))
 				require.Equal(t, 1, len(daemonSet.OwnerReferences))
 				require.Equal(t, beat.Name, daemonSet.OwnerReferences[0].Name)
-
 			},
 			wantErr: false,
 		},
@@ -102,7 +102,7 @@ func Test_reconcileDaemonSet(t *testing.T) {
 			}
 
 			var list appsv1.DaemonSetList
-			err = tt.args.client.List(&list)
+			err = tt.args.client.List(context.Background(), &list)
 			require.NoError(t, err)
 			require.Equal(t, 1, len(list.Items))
 			daemonSet := list.Items[0]

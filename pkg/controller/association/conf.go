@@ -39,7 +39,7 @@ func FetchWithAssociations(
 	span, _ := apm.StartSpan(ctx, "fetch_associations", tracing.SpanTypeApp)
 	defer span.End()
 
-	if err := client.Get(request.NamespacedName, associated); err != nil {
+	if err := client.Get(context.Background(), request.NamespacedName, associated); err != nil {
 		return err
 	}
 
@@ -96,7 +96,7 @@ func ElasticsearchAuthSettings(c k8s.Client, association commonv1.Association) (
 
 	secretObjKey := types.NamespacedName{Namespace: association.GetNamespace(), Name: assocConf.AuthSecretName}
 	var secret corev1.Secret
-	if err := c.Get(secretObjKey, &secret); err != nil {
+	if err := c.Get(context.Background(), secretObjKey, &secret); err != nil {
 		return "", "", err
 	}
 
@@ -130,7 +130,9 @@ func AllowVersion(resourceVersion version.Version, associated commonv1.Associate
 			logger.Error(err, "Invalid version found in association configuration", "association_version", assoc.AssociationConf().Version)
 			return false
 		}
-		if !refVer.IsSameOrAfterIgnoringPatch(resourceVersion) {
+
+		compatibleVersions := refVer.GTE(resourceVersion) || ((refVer.Major == resourceVersion.Major) && (refVer.Minor == resourceVersion.Minor))
+		if !compatibleVersions {
 			// the version of the referenced resource (example: Elasticsearch) is lower than
 			// the desired version of the reconciled resource (example: Kibana)
 			logger.Info("Delaying version deployment since a referenced resource is not upgraded yet",
@@ -207,7 +209,7 @@ func RemoveObsoleteAssociationConfs(
 		return err
 	}
 
-	return client.Update(associated)
+	return client.Update(context.Background(), associated)
 }
 
 // RemoveAssociationConf removes the association configuration annotation.
@@ -233,7 +235,7 @@ func RemoveAssociationConf(client k8s.Client, association commonv1.Association) 
 		return err
 	}
 
-	return client.Update(associated)
+	return client.Update(context.Background(), associated)
 }
 
 // UpdateAssociationConf updates the association configuration annotation.
@@ -267,15 +269,15 @@ func UpdateAssociationConf(
 	}
 
 	// persist the changes
-	return client.Update(obj)
+	return client.Update(context.Background(), obj)
 }
 
 // unsafeStringToBytes converts a string to a byte array without making extra allocations.
 // since we read potentially large strings from annotations on every reconcile loop, this should help
 // reduce the amount of garbage created.
 func unsafeStringToBytes(s string) []byte {
-	hdr := *(*reflect.StringHeader)(unsafe.Pointer(&s))
-	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+	hdr := *(*reflect.StringHeader)(unsafe.Pointer(&s))    //nolint:govet
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{ //nolint:govet
 		Data: hdr.Data,
 		Len:  hdr.Len,
 		Cap:  hdr.Len,

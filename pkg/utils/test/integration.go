@@ -5,6 +5,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -70,6 +71,7 @@ func RunWithK8s(m *testing.M) {
 // StartManager sets up a manager and controller to perform reconciliations in background.
 // It must be stopped by calling the returned function.
 func StartManager(t *testing.T, addToMgrFunc func(manager.Manager, operator.Parameters) error, parameters operator.Parameters) (k8s.Client, func()) {
+	t.Helper()
 	mgr, err := manager.New(Config, manager.Options{
 		MetricsBindAddress: "0", // disable
 	})
@@ -78,20 +80,20 @@ func StartManager(t *testing.T, addToMgrFunc func(manager.Manager, operator.Para
 	err = addToMgrFunc(mgr, parameters)
 	require.NoError(t, err)
 
-	stopChan := make(chan struct{})
-	stopped := make(chan error)
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	errChan := make(chan error)
+
 	// run the manager in background, until stopped
 	go func() {
-		stopped <- mgr.Start(stopChan)
+		errChan <- mgr.Start(ctx)
 	}()
 
-	mgr.GetCache().WaitForCacheSync(nil) // wait until k8s client cache is initialized
+	mgr.GetCache().WaitForCacheSync(ctx) // wait until k8s client cache is initialized
 
-	client := k8s.WrapClient(mgr.GetClient())
+	client := mgr.GetClient()
 	stopFunc := func() {
-		// stop the manager and wait until stopped
-		close(stopChan)
-		require.NoError(t, <-stopped)
+		cancelFunc()
+		require.NoError(t, <-errChan)
 	}
 
 	return client, stopFunc

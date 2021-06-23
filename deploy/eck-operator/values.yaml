@@ -28,11 +28,11 @@ pipeline:
 
 image:
   # repository is the container image prefixed by the registry name.
-  repository: eck/eck-operator
+  path: eck/eck-operator
   # pullPolicy is the container image pull policy.
   pullPolicy: IfNotPresent
   # tag is the container image tag. If not defined, defaults to chart appVersion.
-  tag: null
+  tag: 1.6.0
 
 # imagePullSecrets defines the secrets to use when pulling the operator container image.
 imagePullSecrets: []
@@ -48,6 +48,9 @@ resources:
 
 # podAnnotations define the annotations that should be added to the operator pod.
 podAnnotations: {}
+
+## podLabels define additional labels that should be added to the operator pod.
+podLabels: {}
 
 # podSecurityContext defines the pod security context for the operator pod.
 podSecurityContext:
@@ -67,6 +70,12 @@ affinity: {}
 
 # additional environment variables for the operator container.
 env: []
+
+# additional volume mounts for the operator container.
+volumeMounts: []
+
+# additional volumes to add to the operator pod.
+volumes: []
 
 # createClusterScopedResources determines whether cluster-scoped resources (ClusterRoles, ClusterRoleBindings) should be created.
 createClusterScopedResources: true
@@ -138,7 +147,7 @@ config:
   metricsPort: "0"
 
   # containerRegistry to use for pulling Elasticsearch and other application container images.
-  containerRegistry: docker.artpro.digitalglobe.com
+  # containerRegistry: docker.artpro.digitalglobe.com
 
   # maxConcurrentReconciles is the number of concurrent reconciliation operations to perform per controller.
   maxConcurrentReconciles: "3"
@@ -168,7 +177,44 @@ config:
   # Can be disabled if cluster-wide storage class RBAC access is not available.
   validateStorageClass: true
 
+# Prometheus PodMonitor configuration
+# Reference: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#podmonitor
+podMonitor:
+
+  # enabled determines whether a podMonitor should deployed to scrape the eck metrics.
+  # This requires the prometheus operator and the config.metricsPort not to be 0
+  enabled: false
+
+  # labels adds additional labels to the podMonitor
+  labels: {}
+
+  # annotations adds additional annotations to the podMonitor
+  annotations: {}
+
+  # namespace determines in which namespace the podMonitor will be deployed.
+  # If not set the podMonitor will be created in the namespace to release is installed into
+  # namespace: monitoring
+
+  # interval specifies the interval at which metrics should be scraped
+  interval: 5m
+
+  # scrapeTimeout specifies the timeout after which the scrape is ended
+  scrapeTimeout: 30s
+
+  # podTargetLabels transfers labels on the Kubernetes Pod onto the target.
+  podTargetLabels: []
+
+  # podMetricsEndpointConfig allows to add an extended configuration to the podMonitor
+  podMetricsEndpointConfig: {}
+  # honorTimestamps: true
+
 # Internal use only
 internal:
+  # manifestGen specifies whether the chart is running under manifest generator. 
+  # This is used for tasks specific to generating the all-in-one.yaml file.
   manifestGen: false
+  # createOperatorNamespace defines whether the operator namespace manifest should be generated when in manifestGen mode.
+  # Usually we do want that to happen (e.g. all-in-one.yaml) but, sometimes we don't (e.g. E2E tests). 
+  createOperatorNamespace: true
+  # kubeVersion is the effective Kubernetes version we target when generating the all-in-one.yaml.
   kubeVersion: 1.12.0

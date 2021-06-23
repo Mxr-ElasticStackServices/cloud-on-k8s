@@ -5,12 +5,12 @@
 package elasticsearch
 
 import (
-	"testing"
+	"context"
+	"fmt"
 
 	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
 	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
 	"github.com/elastic/cloud-on-k8s/test/e2e/test"
-	"github.com/stretchr/testify/require"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // auth on gke
 )
 
@@ -19,22 +19,23 @@ func (b Builder) CreationTestSteps(k *test.K8sClient) test.StepList {
 		WithSteps(test.StepList{
 			test.Step{
 				Name: "Creating an Elasticsearch cluster should succeed",
-				Test: func(t *testing.T) {
-					for _, obj := range b.RuntimeObjects() {
-						err := k.Client.Create(obj)
-						require.NoError(t, err)
-					}
-				},
+				Test: test.Eventually(func() error {
+					return k.CreateOrUpdate(b.RuntimeObjects()...)
+				}),
 			},
 			test.Step{
 				Name: "Elasticsearch cluster should be created",
-				Test: func(t *testing.T) {
+				Test: test.Eventually(func() error {
 					var createdEs esv1.Elasticsearch
-					err := k.Client.Get(k8s.ExtractNamespacedName(&b.Elasticsearch), &createdEs)
-					require.NoError(t, err)
-					require.Equal(t, b.Elasticsearch.Spec.Version, createdEs.Spec.Version)
+					if err := k.Client.Get(context.Background(), k8s.ExtractNamespacedName(&b.Elasticsearch), &createdEs); err != nil {
+						return err
+					}
+					if b.Elasticsearch.Spec.Version != createdEs.Spec.Version {
+						return fmt.Errorf("expected version %s but got %s", b.Elasticsearch.Spec.Version, createdEs.Spec.Version)
+					}
 					// TODO this is incomplete
-				},
+					return nil
+				}),
 			},
 		})
 }

@@ -7,6 +7,7 @@
 package beat
 
 import (
+	"context"
 	"testing"
 
 	beatv1beta1 "github.com/elastic/cloud-on-k8s/pkg/apis/beat/v1beta1"
@@ -23,12 +24,12 @@ func TestWebhook(t *testing.T) {
 		},
 		Spec: beatv1beta1.BeatSpec{
 			Type:    "filebeat",
-			Version: "7.8.0",
+			Version: test.LatestVersion7x,
 			// neither DaemonSet nor Deployment provided - this should result in an error like below
 		},
 	}
 
-	err := test.NewK8sClientOrFatal().Client.Create(&beat)
+	err := test.NewK8sClientOrFatal().Client.Create(context.Background(), &beat)
 
 	require.Error(t, err)
 	require.Contains(

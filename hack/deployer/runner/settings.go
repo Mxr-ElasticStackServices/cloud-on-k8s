@@ -6,9 +6,21 @@ package runner
 
 import (
 	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v3"
 )
+
+// SharedVolumeName name shared by CI container and Docker containers launched by deployer. This is the name of the volume
+// valid outside of the CI Docker container, necessary to create other containers referencing the same volume.
+// In local dev mode it is just the home dir as we are typically not running inside a container in the case.
+func SharedVolumeName() string {
+	if vol := os.Getenv("SHARED_VOLUME_NAME"); vol != "" {
+		return vol
+	}
+	// use HOME for local dev mode
+	return os.Getenv("HOME")
+}
 
 // Plans encapsulates list of plans, expected to map to a file
 type Plans struct {
@@ -17,9 +29,11 @@ type Plans struct {
 
 // Plan encapsulates information needed to provision a cluster
 type Plan struct {
-	Id                string        `yaml:"id"` // nolint
+	Id                string        `yaml:"id"` //nolint:revive
 	Operation         string        `yaml:"operation"`
 	ClusterName       string        `yaml:"clusterName"`
+	ClientVersion     string        `yaml:"clientVersion"`
+	ClientBuildDefDir string        `yaml:"clientBuildDefDir"`
 	Provider          string        `yaml:"provider"`
 	KubernetesVersion string        `yaml:"kubernetesVersion"`
 	MachineType       string        `yaml:"machineType"`
@@ -36,8 +50,8 @@ type Plan struct {
 
 type VaultInfo struct {
 	Address     string `yaml:"address"`
-	RoleId      string `yaml:"roleId"`   // nolint
-	SecretId    string `yaml:"secretId"` // nolint
+	RoleId      string `yaml:"roleId"`   //nolint:revive
+	SecretId    string `yaml:"secretId"` //nolint:revive
 	Token       string `yaml:"token"`
 	ClientToken string `yaml:"clientToken"`
 }
@@ -61,20 +75,19 @@ type AksSettings struct {
 	ResourceGroup string `yaml:"resourceGroup"`
 	Location      string `yaml:"location"`
 	NodeCount     int    `yaml:"nodeCount"`
-	DiskSetup     string `yaml:"diskSetup"`
 }
 
 // OcpSettings encapsulates settings specific to OCP on GCloud
 type OcpSettings struct {
-	BaseDomain                 string `yaml:"baseDomain"`
-	GCloudProject              string `yaml:"gCloudProject"`
-	Region                     string `yaml:"region"`
-	AdminUsername              string `yaml:"adminUsername"`
-	WorkDir                    string `yaml:"workDir"`
-	PullSecret                 string `yaml:"pullSecret"`
-	LocalSsdCount              int    `yaml:"localSsdCount"`
-	NodeCount                  int    `yaml:"nodeCount"`
-	OverwriteDefaultKubeconfig bool   `yaml:"overwriteDefaultKubeconfig"`
+	BaseDomain    string `yaml:"baseDomain"`
+	GCloudProject string `yaml:"gCloudProject"`
+	Region        string `yaml:"region"`
+	AdminUsername string `yaml:"adminUsername"`
+	WorkDir       string `yaml:"workDir"`
+	StickyWorkDir bool   `yaml:"stickyWorkDir"`
+	PullSecret    string `yaml:"pullSecret"`
+	LocalSsdCount int    `yaml:"localSsdCount"`
+	NodeCount     int    `yaml:"nodeCount"`
 }
 
 // Ocp3Settings encapsulates settings specific to OCP3 on GCloud
@@ -89,12 +102,11 @@ type EKSSettings struct {
 	NodeCount int    `yaml:"nodeCount"`
 	Region    string `yaml:"region"`
 	WorkDir   string `yaml:"workDir"`
-	DiskSetup string `yaml:"diskSetup"`
 }
 
 // RunConfig encapsulates Id used to choose a plan and a map of overrides to apply to the plan, expected to map to a file
 type RunConfig struct {
-	Id        string                 `yaml:"id"` // nolint
+	Id        string                 `yaml:"id"` //nolint:revive
 	Overrides map[string]interface{} `yaml:"overrides"`
 }
 

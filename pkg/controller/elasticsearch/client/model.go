@@ -240,7 +240,7 @@ type DiscoveryZenSettings struct {
 	Persistent DiscoveryZen `json:"persistent"`
 }
 
-// ErrorResponse is a Elasticsearch error response.
+// ErrorResponse is an Elasticsearch error response.
 type ErrorResponse struct {
 	Status int `json:"status"`
 	Error  struct {
@@ -313,7 +313,7 @@ func (l License) IsValid(instant time.Time) bool {
 
 // IsSupported returns true if the current license type is supported by the given version of Elasticsearch.
 func (l License) IsSupported(v *version.Version) bool {
-	if l.Type == string(ElasticsearchLicenseTypeEnterprise) && !v.IsSameOrAfter(version.MustParse("7.8.1")) {
+	if l.Type == string(ElasticsearchLicenseTypeEnterprise) && !v.GTE(version.MustParse("7.8.1")) {
 		return false
 	}
 	return true

@@ -5,6 +5,7 @@
 package telemetry
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,27 +14,29 @@ import (
 	apmv1 "github.com/elastic/cloud-on-k8s/pkg/apis/apm/v1"
 	beatv1beta1 "github.com/elastic/cloud-on-k8s/pkg/apis/beat/v1beta1"
 	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
-	entv1beta1 "github.com/elastic/cloud-on-k8s/pkg/apis/enterprisesearch/v1beta1"
+	entv1 "github.com/elastic/cloud-on-k8s/pkg/apis/enterprisesearch/v1"
 	kbv1 "github.com/elastic/cloud-on-k8s/pkg/apis/kibana/v1"
+	mapsv1alpha1 "github.com/elastic/cloud-on-k8s/pkg/apis/maps/v1alpha1"
 	"github.com/elastic/cloud-on-k8s/pkg/controller/common/reconciler"
 	"github.com/elastic/cloud-on-k8s/pkg/controller/kibana"
 	"github.com/elastic/cloud-on-k8s/pkg/license"
 	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
+	ulog "github.com/elastic/cloud-on-k8s/pkg/utils/log"
 	"github.com/ghodss/yaml"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 const (
-	resourceCount = "resource_count"
-	podCount      = "pod_count"
+	autoscaledResourceCount = "autoscaled_resource_count"
+	resourceCount           = "resource_count"
+	podCount                = "pod_count"
 
 	timestampFieldName = "timestamp"
 )
 
-var log = logf.Log.WithName("usage")
+var log = ulog.Log.WithName("usage")
 
 type ECKTelemetry struct {
 	ECK ECK `json:"eck"`
@@ -61,7 +64,7 @@ func NewReporter(
 
 	return Reporter{
 		operatorInfo:      info,
-		client:            k8s.WrapClient(client),
+		client:            client,
 		operatorNamespace: operatorNamespace,
 		managedNamespaces: managedNamespaces,
 		telemetryInterval: telemetryInterval,
@@ -102,6 +105,7 @@ func (r *Reporter) getResourceStats() (map[string]interface{}, error) {
 		beatStats,
 		entStats,
 		agentStats,
+		mapsStats,
 	} {
 		key, statsPart, err := f(r.client, r.managedNamespaces)
 		if err != nil {
@@ -134,14 +138,14 @@ func (r *Reporter) report() {
 
 	for _, ns := range r.managedNamespaces {
 		var kibanaList kbv1.KibanaList
-		if err := r.client.List(&kibanaList, client.InNamespace(ns)); err != nil {
+		if err := r.client.List(context.Background(), &kibanaList, client.InNamespace(ns)); err != nil {
 			log.Error(err, "failed to list Kibanas")
 			continue
 		}
 		for _, kb := range kibanaList.Items {
 			var secret corev1.Secret
 			nsName := types.NamespacedName{Namespace: kb.Namespace, Name: kibana.SecretName(kb)}
-			if err := r.client.Get(nsName, &secret); err != nil {
+			if err := r.client.Get(context.Background(), nsName, &secret); err != nil {
 				log.Error(err, "failed to get Kibana secret")
 				continue
 			}
@@ -168,7 +172,7 @@ func (r *Reporter) getLicenseInfo() (map[string]string, error) {
 	}
 
 	var licenseConfigMap corev1.ConfigMap
-	if err := r.client.Get(nsn, &licenseConfigMap); err != nil {
+	if err := r.client.Get(context.Background(), nsn, &licenseConfigMap); err != nil {
 		return nil, err
 	}
 
@@ -179,17 +183,20 @@ func (r *Reporter) getLicenseInfo() (map[string]string, error) {
 }
 
 func esStats(k8sClient k8s.Client, managedNamespaces []string) (string, interface{}, error) {
-	stats := map[string]int32{resourceCount: 0, podCount: 0}
+	stats := map[string]int32{resourceCount: 0, podCount: 0, autoscaledResourceCount: 0}
 
 	var esList esv1.ElasticsearchList
 	for _, ns := range managedNamespaces {
-		if err := k8sClient.List(&esList, client.InNamespace(ns)); err != nil {
+		if err := k8sClient.List(context.Background(), &esList, client.InNamespace(ns)); err != nil {
 			return "", nil, err
 		}
 
 		for _, es := range esList.Items {
 			stats[resourceCount]++
 			stats[podCount] += es.Status.AvailableNodes
+			if es.IsAutoscalingDefined() {
+				stats[autoscaledResourceCount]++
+			}
 		}
 	}
 	return "elasticsearches", stats, nil
@@ -200,7 +207,7 @@ func kbStats(k8sClient k8s.Client, managedNamespaces []string) (string, interfac
 
 	var kbList kbv1.KibanaList
 	for _, ns := range managedNamespaces {
-		if err := k8sClient.List(&kbList, client.InNamespace(ns)); err != nil {
+		if err := k8sClient.List(context.Background(), &kbList, client.InNamespace(ns)); err != nil {
 			return "", nil, err
 		}
 
@@ -217,7 +224,7 @@ func apmStats(k8sClient k8s.Client, managedNamespaces []string) (string, interfa
 
 	var apmList apmv1.ApmServerList
 	for _, ns := range managedNamespaces {
-		if err := k8sClient.List(&apmList, client.InNamespace(ns)); err != nil {
+		if err := k8sClient.List(context.Background(), &apmList, client.InNamespace(ns)); err != nil {
 			return "", nil, err
 		}
 
@@ -239,7 +246,7 @@ func beatStats(k8sClient k8s.Client, managedNamespaces []string) (string, interf
 
 	var beatList beatv1beta1.BeatList
 	for _, ns := range managedNamespaces {
-		if err := k8sClient.List(&beatList, client.InNamespace(ns)); err != nil {
+		if err := k8sClient.List(context.Background(), &beatList, client.InNamespace(ns)); err != nil {
 			return "", nil, err
 		}
 
@@ -256,9 +263,9 @@ func beatStats(k8sClient k8s.Client, managedNamespaces []string) (string, interf
 func entStats(k8sClient k8s.Client, managedNamespaces []string) (string, interface{}, error) {
 	stats := map[string]int32{resourceCount: 0, podCount: 0}
 
-	var entList entv1beta1.EnterpriseSearchList
+	var entList entv1.EnterpriseSearchList
 	for _, ns := range managedNamespaces {
-		if err := k8sClient.List(&entList, client.InNamespace(ns)); err != nil {
+		if err := k8sClient.List(context.Background(), &entList, client.InNamespace(ns)); err != nil {
 			return "", nil, err
 		}
 
@@ -276,7 +283,7 @@ func agentStats(k8sClient k8s.Client, managedNamespaces []string) (string, inter
 
 	var agentList agentv1alpha1.AgentList
 	for _, ns := range managedNamespaces {
-		if err := k8sClient.List(&agentList, client.InNamespace(ns)); err != nil {
+		if err := k8sClient.List(context.Background(), &agentList, client.InNamespace(ns)); err != nil {
 			return "", nil, err
 		}
 
@@ -289,4 +296,21 @@ func agentStats(k8sClient k8s.Client, managedNamespaces []string) (string, inter
 		}
 	}
 	return "agents", stats, nil
+}
+
+func mapsStats(k8sClient k8s.Client, managedNamespaces []string) (string, interface{}, error) {
+	stats := map[string]int32{resourceCount: 0, podCount: 0}
+
+	var mapsList mapsv1alpha1.ElasticMapsServerList
+	for _, ns := range managedNamespaces {
+		if err := k8sClient.List(context.Background(), &mapsList, client.InNamespace(ns)); err != nil {
+			return "", nil, err
+		}
+
+		for _, maps := range mapsList.Items {
+			stats[resourceCount]++
+			stats[podCount] += maps.Status.AvailableNodes
+		}
+	}
+	return "maps", stats, nil
 }

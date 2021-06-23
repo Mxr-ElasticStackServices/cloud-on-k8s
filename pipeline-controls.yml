@@ -18,7 +18,7 @@ deploy:
     devint:
       targets:
         essdev-k8s-commercial-dev:
-          active: false
+          active: true
           properties:
             charts:
               elastic-operator:
@@ -26,7 +26,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                  - values/commercial/values.yaml
+                  - values/envs/devint/essdev_values.yaml
     shared-services:
       targets:
 #        ess-k8s-commercial-shared-services:
@@ -38,7 +38,7 @@ deploy:
 #                name: elastic-operator
 #                appendNamespace: false
 #                values:
-#                  - values/commercial/values.yaml
+#                  - values/envs/sharedservices/commercial_values.yaml
 #        ess-k8s-govcloud-shared-services:
 #          active: false
 #          properties:
@@ -48,9 +48,9 @@ deploy:
 #                name: elastic-operator
 #                appendNamespace: false
 #                values:
-#                  - values/govcloud/values.yaml
+#                  - values/envs/sharedservices/govcloud_values.yaml
         ess-k8s-sc2s-shared-services:
-          active: true
+          active: false
           properties:
             charts:
               elastic-operator:
@@ -58,7 +58,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                  - values/sc2s/values.yaml
+                  - values/envs/sharedservices/sc2s_values.yaml
         ess-k8s-v3r-shared-services:
           active: false
           properties:
@@ -68,7 +68,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                  - values/v3r/values.yaml                  
+                  - values/envs/sharedservices/v3r_values.yaml                  
 variables:
   sources:
 #    sharedservices-commercial:

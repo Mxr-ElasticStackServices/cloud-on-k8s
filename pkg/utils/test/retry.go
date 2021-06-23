@@ -14,12 +14,13 @@ import (
 
 // Default values to be used for testing purpose.
 const (
-	Timeout       = time.Second * 5
+	Timeout       = time.Second * 10
 	RetryInterval = time.Millisecond * 100
 )
 
 // RetryUntilSuccess calls retry.UntilSuccess with default timeout and retry interval,
 // and requires that no error is returned.
 func RetryUntilSuccess(t *testing.T, f func() error) {
+	t.Helper()
 	require.NoError(t, retry.UntilSuccess(f, Timeout, RetryInterval))
 }

@@ -36,11 +36,12 @@ func deleteOrphanedResources(
 
 	// List all the Secrets involved in an association (users and ca)
 	var secrets corev1.SecretList
-	if err := c.List(&secrets, associatedLabels); err != nil {
+	if err := c.List(context.Background(), &secrets, associatedLabels); err != nil {
 		return err
 	}
 
 	for _, secret := range secrets.Items {
+		secret := secret
 		for _, association := range associations {
 			if isSecretForAssociation(info, secret, association) {
 				goto nextSecret
@@ -49,7 +50,7 @@ func deleteOrphanedResources(
 
 		// Secret for the `associated` resource doesn't match any `association` - it's not needed anymore and should be deleted.
 		log.Info("Deleting secret", "namespace", secret.Namespace, "secret_name", secret.Name, "associated_name", associated.Name)
-		if err := c.Delete(&secret); err != nil && !apierrors.IsNotFound(err) {
+		if err := c.Delete(context.Background(), &secret); err != nil && !apierrors.IsNotFound(err) {
 			return err
 		}
 

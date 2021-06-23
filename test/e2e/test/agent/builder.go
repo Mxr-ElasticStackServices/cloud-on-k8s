@@ -21,8 +21,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/rand"
+	k8sclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -34,7 +34,7 @@ type Builder struct {
 	Agent              agentv1alpha1.Agent
 	Validations        []ValidationFunc
 	ValidationsOutputs []string
-	AdditionalObjects  []runtime.Object
+	AdditionalObjects  []k8sclient.Object
 
 	// PodTemplate points to the PodTemplate in spec.DaemonSet or spec.Deployment
 	PodTemplate *corev1.PodTemplateSpec
@@ -272,18 +272,19 @@ func (b Builder) WithConfigRef(secretName string) Builder {
 	return b
 }
 
-func (b Builder) WithObjects(objs ...runtime.Object) Builder {
+func (b Builder) WithObjects(objs ...k8sclient.Object) Builder {
 	b.AdditionalObjects = append(b.AdditionalObjects, objs...)
 	return b
 }
 
-func (b Builder) RuntimeObjects() []runtime.Object {
+func (b Builder) RuntimeObjects() []k8sclient.Object {
 	return append(b.AdditionalObjects, &b.Agent)
 }
 
 var _ test.Builder = Builder{}
 
 func ApplyYamls(t *testing.T, b Builder, configYaml, podTemplateYaml string) Builder {
+	t.Helper()
 	if configYaml != "" {
 		b.Agent.Spec.Config = &commonv1.Config{}
 		err := settings.MustParseConfig([]byte(configYaml)).Unpack(&b.Agent.Spec.Config.Data)

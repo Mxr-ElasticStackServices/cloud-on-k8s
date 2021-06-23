@@ -1,3 +1,4 @@
+{{- $metricsPort := int .Values.config.metricsPort -}}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -24,6 +25,9 @@ spec:
         {{- end }}
       labels:
         {{- include "eck-operator.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       terminationGracePeriodSeconds: 10
       serviceAccountName: {{ include "eck-operator.serviceAccountName" . }}
@@ -31,14 +35,10 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       imagePullSecrets: 
         - name: {{ .Values.pipeline.image_pull_secrets.default | quote }}
       containers:
-        - image: "{{ .Values.maxar.docker.registry }}/{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
+        - image: "{{ .Values.maxar.docker.registry }}/{{ .Values.image.path }}:{{ default .Chart.AppVersion .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           name: manager
           args:
@@ -62,8 +62,8 @@ spec:
             - name: WEBHOOK_SECRET
               value: {{ include "eck-operator.webhookSecretName" . }}
             {{- end }}
-            {{- if .Values.env }}
-              {{- toYaml .Values.env | nindent 12 }}
+            {{- with .Values.env }}
+              {{- toYaml . | nindent 12 }}
             {{- end }}
             {{- if .Values.tracing.enabled -}}
             {{- range $name, $value :=  .Values.tracing.config }}
@@ -75,11 +75,18 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .Values.webhook.enabled }}
+          {{- if or (gt $metricsPort 0) .Values.webhook.enabled }}
           ports:
+            {{- if (gt $metricsPort 0) }}
+            - containerPort: {{ .Values.config.metricsPort }}
+              name: metrics
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.webhook.enabled }}
             - containerPort: 9443
               name: https-webhook
               protocol: TCP
+            {{- end }}  
           {{- end }}
           volumeMounts:
             - mountPath: "/conf"
@@ -90,6 +97,9 @@ spec:
               name: cert
               readOnly: true
             {{- end }}
+            {{- with .Values.volumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
       volumes:
         - name: conf
           configMap:
@@ -99,6 +109,9 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ include "eck-operator.webhookSecretName" . }}
+        {{- end }}
+        {{- with .Values.volumes }}
+          {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

@@ -12,6 +12,7 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -31,9 +32,7 @@ func AddWatches(c controller.Controller, r *ReconcileRemoteCa) error {
 	}
 
 	// Watch Secrets that contain remote certificate authorities managed by this controller
-	if err := c.Watch(&source.Kind{Type: &v1.Secret{}}, &handler.EnqueueRequestsFromMapFunc{
-		ToRequests: newToRequestsFuncFromSecret(),
-	}); err != nil {
+	if err := c.Watch(&source.Kind{Type: &v1.Secret{}}, handler.EnqueueRequestsFromMapFunc(newRequestsFromMatchedLabels())); err != nil {
 		return err
 	}
 
@@ -41,25 +40,22 @@ func AddWatches(c controller.Controller, r *ReconcileRemoteCa) error {
 	if err := c.Watch(&source.Kind{Type: &v1.Secret{}}, r.watches.Secrets); err != nil {
 		return err
 	}
-	if err := r.watches.Secrets.AddHandlers(
+
+	return r.watches.Secrets.AddHandlers(
 		&watches.OwnerWatch{
 			EnqueueRequestForOwner: handler.EnqueueRequestForOwner{
 				IsController: true,
 				OwnerType:    &esv1.Elasticsearch{},
 			},
 		},
-	); err != nil {
-		return err
-	}
-
-	return nil
+	)
 }
 
-// newToRequestsFuncFromSecret creates a watch handler function that creates reconcile requests based on the
+// newRequestsFromMatchedLabels creates a watch handler function that creates reconcile requests based on the
 // labels set on a Secret which contains the remote CA.
-func newToRequestsFuncFromSecret() handler.ToRequestsFunc {
-	return func(obj handler.MapObject) []reconcile.Request {
-		labels := obj.Meta.GetLabels()
+func newRequestsFromMatchedLabels() handler.MapFunc {
+	return func(obj client.Object) []reconcile.Request {
+		labels := obj.GetLabels()
 		if !maps.ContainsKeys(labels, RemoteClusterNameLabelName, RemoteClusterNamespaceLabelName, common.TypeLabelName) {
 			return nil
 		}
