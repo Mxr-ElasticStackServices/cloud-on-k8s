@@ -39,16 +39,16 @@ deploy:
                 appendNamespace: false
                 values:
                   - values/envs/sharedservices/commercial_values.yaml
-#        ess-k8s-govcloud-shared-services:
-#          active: false
-#          properties:
-#            charts:
-#              elastic-operator:
-#                path: deploy/eck-operator
-#                name: elastic-operator
-#                appendNamespace: false
-#                values:
-#                  - values/envs/sharedservices/govcloud_values.yaml
+        ess-k8s-govcloud-shared-services:
+          active: true
+          properties:
+            charts:
+              elastic-operator:
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+                  - values/envs/sharedservices/govcloud_values.yaml
         ess-k8s-sc2s-shared-services:
           active: false
           properties:
