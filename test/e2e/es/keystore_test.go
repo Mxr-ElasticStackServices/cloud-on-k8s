@@ -7,14 +7,15 @@
 package es
 
 import (
+	"context"
 	"testing"
 
 	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
 	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
 	"github.com/elastic/cloud-on-k8s/test/e2e/test"
 	"github.com/elastic/cloud-on-k8s/test/e2e/test/elasticsearch"
-	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -57,16 +58,9 @@ func TestUpdateESSecureSettings(t *testing.T) {
 		// create secure settings secret
 		WithStep(test.Step{
 			Name: "Create secure settings secret",
-			Test: func(t *testing.T) {
-				for _, s := range secureSettings {
-					// remove if already exists (ignoring errors)
-					_ = k.Client.Delete(&s)
-					// and create a fresh one
-					err := k.Client.Create(&s)
-					require.NoError(t, err)
-
-				}
-			},
+			Test: test.Eventually(func() error {
+				return k.CreateOrUpdateSecrets(secureSettings...)
+			}),
 		}).
 
 		// create the cluster
@@ -82,14 +76,13 @@ func TestUpdateESSecureSettings(t *testing.T) {
 			// modify the secure settings secret
 			test.Step{
 				Name: "Modify secure settings secret",
-				Test: func(t *testing.T) {
+				Test: test.Eventually(func() error {
 					// remove some keys, add new ones
 					secureSettings2.Data = map[string][]byte{
 						secureBazUserSettingKey: []byte("baz"), // the actual value update cannot be checked :(
 					}
-					err := k.Client.Update(&secureSettings2)
-					require.NoError(t, err)
-				},
+					return k.Client.Update(context.Background(), &secureSettings2)
+				}),
 			},
 			// keystore should be updated accordingly
 			elasticsearch.CheckESKeystoreEntries(k, b, []string{
@@ -99,9 +92,13 @@ func TestUpdateESSecureSettings(t *testing.T) {
 			// remove one secret
 			test.Step{
 				Name: "Remove one of the source secrets",
-				Test: func(t *testing.T) {
-					require.NoError(t, k.Client.Delete(&secureSettings2))
-				},
+				Test: test.Eventually(func() error {
+					err := k.Client.Delete(context.Background(), &secureSettings2)
+					if err != nil && !apierrors.IsNotFound(err) {
+						return err
+					}
+					return nil
+				}),
 			},
 			// keystore should be updated accordingly
 			elasticsearch.CheckESKeystoreEntries(k, b, []string{
@@ -110,16 +107,16 @@ func TestUpdateESSecureSettings(t *testing.T) {
 			// remove the secure settings reference
 			test.Step{
 				Name: "Remove secure settings from the spec",
-				Test: func(t *testing.T) {
+				Test: test.Eventually(func() error {
 					// retrieve current Elasticsearch resource
 					var currentEs esv1.Elasticsearch
-					err := k.Client.Get(k8s.ExtractNamespacedName(&b.Elasticsearch), &currentEs)
-					require.NoError(t, err)
+					if err := k.Client.Get(context.Background(), k8s.ExtractNamespacedName(&b.Elasticsearch), &currentEs); err != nil {
+						return err
+					}
 					// set its secure settings to nil
 					currentEs.Spec.SecureSettings = nil
-					err = k.Client.Update(&currentEs)
-					require.NoError(t, err)
-				},
+					return k.Client.Update(context.Background(), &currentEs)
+				}),
 			},
 
 			// keystore should be updated accordingly
@@ -128,10 +125,13 @@ func TestUpdateESSecureSettings(t *testing.T) {
 			// cleanup extra resources
 			test.Step{
 				Name: "Delete secure settings secret",
-				Test: func(t *testing.T) {
-					err := k.Client.Delete(&secureSettings1) // we deleted the other one above already
-					require.NoError(t, err)
-				},
+				Test: test.Eventually(func() error {
+					err := k.Client.Delete(context.Background(), &secureSettings1) // we deleted the other one above already
+					if err != nil && !apierrors.IsNotFound(err) {
+						return err
+					}
+					return nil
+				}),
 			},
 		}).
 		WithSteps(b.DeletionTestSteps(k)).

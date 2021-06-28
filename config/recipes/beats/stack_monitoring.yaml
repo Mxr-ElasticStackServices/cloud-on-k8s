@@ -6,7 +6,7 @@ metadata:
   name: metricbeat
 spec:
   type: metricbeat
-  version: 7.9.2
+  version: 7.12.0
   elasticsearchRef:
     name: elasticsearch-monitoring
   config:
@@ -86,6 +86,7 @@ rules:
   resources:
   - namespaces
   - pods
+  - nodes
   verbs:
   - get
   - watch
@@ -117,7 +118,7 @@ metadata:
   name: filebeat
 spec:
   type: filebeat
-  version: 7.9.2
+  version: 7.12.0
   elasticsearchRef:
     name: elasticsearch-monitoring
   kibanaRef:
@@ -184,6 +185,7 @@ rules:
   resources:
   - namespaces
   - pods
+  - nodes
   verbs:
   - get
   - watch
@@ -214,7 +216,7 @@ kind: Elasticsearch
 metadata:
   name: elasticsearch
 spec:
-  version: 7.9.2
+  version: 7.12.0
   nodeSets:
   - name: default
     count: 3
@@ -233,14 +235,13 @@ kind: Kibana
 metadata:
   name: kibana
 spec:
-  version: 7.9.2
+  version: 7.12.0
   count: 1
   elasticsearchRef:
     name: elasticsearch
   config:
     # https://www.elastic.co/guide/en/kibana/current/monitoring-metricbeat.html
-    xpack.monitoring.kibana.collection.enabled: false
-    xpack.monitoring.collection.enabled: true
+    monitoring.kibana.collection.enabled: false
   podTemplate:
     metadata:
       labels:
@@ -251,7 +252,7 @@ kind: Elasticsearch
 metadata:
   name: elasticsearch-monitoring
 spec:
-  version: 7.9.2
+  version: 7.12.0
   nodeSets:
   - name: default
     count: 3
@@ -263,12 +264,12 @@ kind: Kibana
 metadata:
   name: kibana-monitoring
 spec:
-  version: 7.9.2
+  version: 7.12.0
   count: 1
   elasticsearchRef:
     name: elasticsearch-monitoring
   config:
     # enable the UI to reflect container level CPU usage, only displays info if CPU limits are set on the monitored ES cluster
     # https://www.elastic.co/guide/en/kibana/current/monitoring-settings-kb.html
-    xpack.monitoring.ui.container.elasticsearch.enabled: true
+    monitoring.ui.container.elasticsearch.enabled: true
 ...

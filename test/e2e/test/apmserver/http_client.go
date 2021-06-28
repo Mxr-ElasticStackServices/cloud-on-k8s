@@ -42,7 +42,7 @@ type ApmClient struct {
 func NewApmServerClient(as apmv1.ApmServer, k *test.K8sClient) (*ApmClient, error) {
 	var secretTokenSecret v1.Secret
 	secretTokenNamespacedName := types.NamespacedName{Namespace: as.Namespace, Name: as.Status.SecretTokenSecretName}
-	if err := k.Client.Get(secretTokenNamespacedName, &secretTokenSecret); err != nil {
+	if err := k.Client.Get(context.Background(), secretTokenNamespacedName, &secretTokenSecret); err != nil {
 		return nil, err
 	}
 
@@ -112,7 +112,7 @@ func (c *ApmClient) request(
 		body = bytes.NewBuffer(outData)
 	}
 
-	request, err := http.NewRequest(method, stringsutil.Concat(c.endpoint, pathWithQuery), body)
+	request, err := http.NewRequest(method, stringsutil.Concat(c.endpoint, pathWithQuery), body) //nolint:noctx
 	if err != nil {
 		return err
 	}
@@ -150,12 +150,9 @@ type ApmServerInfo6 struct {
 // ServerInfo requests the Server Information API
 func (c *ApmClient) ServerInfo(ctx context.Context) (*ApmServerInfo, error) {
 	requester := func(responseObj interface{}) error {
-		if err := c.request(ctx, http.MethodGet, "", http.Header{
+		return c.request(ctx, http.MethodGet, "", http.Header{
 			"Accept": []string{"application/json"},
-		}, nil, &responseObj); err != nil {
-			return err
-		}
-		return nil
+		}, nil, &responseObj)
 	}
 
 	if strings.HasPrefix(c.version, "6") {
@@ -237,7 +234,7 @@ type AgentConfig struct {
 // AgentsDefaultConfig returns the default Agent configuration
 func (c *ApmClient) AgentsDefaultConfig(ctx context.Context) (AgentConfig, error) {
 	var agentConfig AgentConfig
-	request, err := http.NewRequest(
+	request, err := http.NewRequest( //nolint:noctx
 		http.MethodGet,
 		stringsutil.Concat(c.endpoint, agentConfigPath),
 		nil,

@@ -19,7 +19,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/record"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	commonv1 "github.com/elastic/cloud-on-k8s/pkg/apis/common/v1"
 	kbv1 "github.com/elastic/cloud-on-k8s/pkg/apis/kibana/v1"
@@ -34,14 +33,6 @@ import (
 
 var customResourceLimits = corev1.ResourceRequirements{
 	Limits: corev1.ResourceList{corev1.ResourceMemory: resource.MustParse("2Gi")},
-}
-
-type failingClient struct {
-	k8s.Client
-}
-
-func (f *failingClient) List(list runtime.Object, opts ...client.ListOption) error {
-	return errors.New("client error")
 }
 
 func Test_getStrategyType(t *testing.T) {
@@ -183,9 +174,9 @@ func Test_getStrategyType(t *testing.T) {
 			kb.Name = tt.expectedKbName
 			kb.Spec.Version = tt.expectedVersion
 
-			client := k8s.WrappedFakeClient(tt.initialObjects...)
+			client := k8s.NewFakeClient(tt.initialObjects...)
 			if tt.clientError {
-				client = &failingClient{}
+				client = k8s.NewFailingClient(errors.New("client error"))
 			}
 
 			d, err := newDriver(client, w, record.NewFakeRecorder(100), kb, corev1.IPv4Protocol)
@@ -365,7 +356,7 @@ func TestDriverDeploymentParams(t *testing.T) {
 			kb := tt.args.kb()
 			initialObjects := tt.args.initialObjects()
 
-			client := k8s.WrappedFakeClient(initialObjects...)
+			client := k8s.NewFakeClient(initialObjects...)
 			w := watches.NewDynamicWatches()
 
 			d, err := newDriver(client, w, record.NewFakeRecorder(100), kb, corev1.IPv4Protocol)
@@ -411,7 +402,7 @@ func TestMinSupportedVersion(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			kb := kibanaFixture()
 			kb.Spec.Version = tc.version
-			client := k8s.WrappedFakeClient(defaultInitialObjects()...)
+			client := k8s.NewFakeClient(defaultInitialObjects()...)
 			w := watches.NewDynamicWatches()
 
 			_, err := newDriver(client, w, record.NewFakeRecorder(100), kb, corev1.IPv4Protocol)
@@ -425,7 +416,7 @@ func TestMinSupportedVersion(t *testing.T) {
 }
 
 func expectedDeploymentParams() deployment.Params {
-	false := false
+	falseVal := false
 	return deployment.Params{
 		Name:      "test-kb",
 		Namespace: "default",
@@ -452,7 +443,7 @@ func expectedDeploymentParams() deployment.Params {
 						VolumeSource: corev1.VolumeSource{
 							Secret: &corev1.SecretVolumeSource{
 								SecretName: "test-kb-http-certs-internal",
-								Optional:   &false,
+								Optional:   &falseVal,
 							},
 						},
 					},
@@ -461,7 +452,7 @@ func expectedDeploymentParams() deployment.Params {
 						VolumeSource: corev1.VolumeSource{
 							Secret: &corev1.SecretVolumeSource{
 								SecretName: "test-kb-config",
-								Optional:   &false,
+								Optional:   &falseVal,
 							},
 						},
 					},
@@ -476,7 +467,7 @@ func expectedDeploymentParams() deployment.Params {
 						VolumeSource: corev1.VolumeSource{
 							Secret: &corev1.SecretVolumeSource{
 								SecretName: "es-ca-secret",
-								Optional:   &false,
+								Optional:   &falseVal,
 							},
 						},
 					},
@@ -493,7 +484,7 @@ func expectedDeploymentParams() deployment.Params {
 					Image:           "my-image",
 					Command:         []string{"/usr/bin/env", "bash", "-c", InitConfigScript},
 					SecurityContext: &corev1.SecurityContext{
-						Privileged: &false,
+						Privileged: &falseVal,
 					},
 					Env: []corev1.EnvVar{
 						{Name: settings.EnvPodIP, Value: "", ValueFrom: &corev1.EnvVarSource{
@@ -528,7 +519,7 @@ func expectedDeploymentParams() deployment.Params {
 						},
 						{
 							Name:      DataVolumeName,
-							ReadOnly:  false,
+							ReadOnly:  falseVal,
 							MountPath: DataVolumeMountPath,
 						},
 					},
@@ -564,7 +555,7 @@ func expectedDeploymentParams() deployment.Params {
 						},
 						{
 							Name:      DataVolumeName,
-							ReadOnly:  false,
+							ReadOnly:  falseVal,
 							MountPath: DataVolumeMountPath,
 						},
 					},
@@ -589,7 +580,7 @@ func expectedDeploymentParams() deployment.Params {
 					},
 					Resources: DefaultResources,
 				}},
-				AutomountServiceAccountToken: &false,
+				AutomountServiceAccountToken: &falseVal,
 			},
 		},
 	}

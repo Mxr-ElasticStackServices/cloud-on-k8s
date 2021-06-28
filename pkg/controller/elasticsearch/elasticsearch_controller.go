@@ -31,6 +31,7 @@ import (
 	"github.com/elastic/cloud-on-k8s/pkg/controller/elasticsearch/validation"
 	esversion "github.com/elastic/cloud-on-k8s/pkg/controller/elasticsearch/version"
 	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
+	ulog "github.com/elastic/cloud-on-k8s/pkg/utils/log"
 	pkgerrors "github.com/pkg/errors"
 	"go.elastic.co/apm"
 	appsv1 "k8s.io/api/apps/v1"
@@ -40,7 +41,6 @@ import (
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
@@ -48,7 +48,7 @@ import (
 
 const name = "elasticsearch-controller"
 
-var log = logf.Log.WithName(name)
+var log = ulog.Log.WithName(name)
 
 // Add creates a new Elasticsearch Controller and adds it to the Manager with default RBAC. The Manager will set fields
 // on the Controller and Start it when the Manager is Started.
@@ -64,7 +64,7 @@ func Add(mgr manager.Manager, params operator.Parameters) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager, params operator.Parameters) *ReconcileElasticsearch {
-	client := k8s.WrapClient(mgr.GetClient())
+	client := mgr.GetClient()
 	return &ReconcileElasticsearch{
 		Client:         client,
 		recorder:       mgr.GetEventRecorderFor(name),
@@ -126,11 +126,7 @@ func addWatches(c controller.Controller, r *ReconcileElasticsearch) error {
 	}
 
 	// Trigger a reconciliation when observers report a cluster health change
-	if err := c.Watch(observer.WatchClusterHealthChange(r.esObservers), reconciler.GenericEventHandler()); err != nil {
-		return err
-	}
-
-	return nil
+	return c.Watch(observer.WatchClusterHealthChange(r.esObservers), reconciler.GenericEventHandler())
 }
 
 var _ reconcile.Reconciler = &ReconcileElasticsearch{}
@@ -156,9 +152,9 @@ type ReconcileElasticsearch struct {
 
 // Reconcile reads the state of the cluster for an Elasticsearch object and makes changes based on the state read and
 // what is in the Elasticsearch.Spec
-func (r *ReconcileElasticsearch) Reconcile(request reconcile.Request) (reconcile.Result, error) {
+func (r *ReconcileElasticsearch) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	defer common.LogReconciliationRun(log, request, "es_name", &r.iteration)()
-	tx, ctx := tracing.NewTransaction(r.Tracer, request.NamespacedName, "elasticsearch")
+	tx, ctx := tracing.NewTransaction(ctx, r.Tracer, request.NamespacedName, "elasticsearch")
 	defer tracing.EndTransaction(tx)
 
 	// Fetch the Elasticsearch instance
@@ -212,7 +208,7 @@ func (r *ReconcileElasticsearch) fetchElasticsearch(ctx context.Context, request
 	span, _ := apm.StartSpan(ctx, "fetch_elasticsearch", tracing.SpanTypeApp)
 	defer span.End()
 
-	err := r.Get(request.NamespacedName, es)
+	err := r.Get(context.Background(), request.NamespacedName, es)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			// Object not found, cleanup in-memory state. Children resources are garbage-collected either by
@@ -270,7 +266,7 @@ func (r *ReconcileElasticsearch) internalReconcile(
 	if err != nil {
 		return results.WithError(err)
 	}
-	supported := esversion.SupportedVersions(*ver)
+	supported := esversion.SupportedVersions(ver)
 	if supported == nil {
 		return results.WithError(pkgerrors.Errorf("unsupported version: %s", ver))
 	}
@@ -281,7 +277,7 @@ func (r *ReconcileElasticsearch) internalReconcile(
 		ReconcileState:     reconcileState,
 		Client:             r.Client,
 		Recorder:           r.recorder,
-		Version:            *ver,
+		Version:            ver,
 		Expectations:       r.expectations.ForCluster(k8s.ExtractNamespacedName(&es)),
 		Observers:          r.esObservers,
 		DynamicWatches:     r.dynamicWatches,
@@ -315,7 +311,7 @@ func (r *ReconcileElasticsearch) updateStatus(
 	return common.UpdateStatus(r.Client, cluster)
 }
 
-// onDelete garbage collect resources when a Elasticsearch cluster is deleted
+// onDelete garbage collect resources when an Elasticsearch cluster is deleted
 func (r *ReconcileElasticsearch) onDelete(es types.NamespacedName) error {
 	r.expectations.RemoveCluster(es)
 	r.esObservers.StopObserving(es)

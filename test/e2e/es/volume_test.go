@@ -7,6 +7,7 @@
 package es
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -34,6 +35,43 @@ func TestVolumeEmptyDir(t *testing.T) {
 	// volume type will be checked in creation steps
 	test.Sequence(nil, test.EmptySteps, b).
 		RunSequential(t)
+}
+
+func TestVolumeRetention(t *testing.T) {
+	var dataCheck *elasticsearch.DataIntegrityCheck
+	b := elasticsearch.NewBuilder("test-volume-retain-policy").
+		WithESMasterDataNodes(3, elasticsearch.DefaultResources).
+		WithVolumeClaimDeletePolicy(esv1.DeleteOnScaledownOnlyPolicy)
+
+	// Create a cluster configured to retain its PVCs and ingest data
+	test.Sequence(nil, func(k *test.K8sClient) test.StepList {
+		return test.StepList{
+			{
+				Name: "Ingest verification sample data",
+				Test: func(t *testing.T) {
+					dataCheck = elasticsearch.NewDataIntegrityCheck(k, b)
+					require.NoError(t, dataCheck.Init())
+				},
+			},
+		}
+	}, b).RunSequential(t)
+
+	// The cluster has now been deleted as part of our usual test step sequence, but PVCs have been retained.
+	// Recreate it just this time without retaining the PVCs.
+
+	b2 := b.WithVolumeClaimDeletePolicy(esv1.DeleteOnScaledownAndClusterDeletionPolicy)
+	test.Sequence(nil, func(k *test.K8sClient) test.StepList {
+		return test.StepList{
+			{
+				Name: "Verify data has been retained after cluster recreation",
+				Test: func(t *testing.T) {
+					require.NoError(t, dataCheck.Verify())
+				},
+			},
+		}
+	}, b2).RunSequential(t)
+
+	// The cluster has now been deleted including its PVCs as evidenced by our usual deletion test step sequence.
 }
 
 func TestVolumeMultiDataPath(t *testing.T) {
@@ -143,11 +181,11 @@ func TestVolumeExpansion(t *testing.T) {
 				Name: "Update the Elasticsearch spec with increased storage requests",
 				Test: test.Eventually(func() error {
 					var es esv1.Elasticsearch
-					if err := k.Client.Get(k8s.ExtractNamespacedName(&b.Elasticsearch), &es); err != nil {
+					if err := k.Client.Get(context.Background(), k8s.ExtractNamespacedName(&b.Elasticsearch), &es); err != nil {
 						return err
 					}
 					patchStorageSize(&es, resizedStorage)
-					return k.Client.Update(&es)
+					return k.Client.Update(context.Background(), &es)
 				}),
 			},
 			{
@@ -155,7 +193,7 @@ func TestVolumeExpansion(t *testing.T) {
 				Test: test.Eventually(func() error {
 					for _, pvcName := range pvcNames {
 						var pvc corev1.PersistentVolumeClaim
-						if err := k.Client.Get(types.NamespacedName{Namespace: b.Elasticsearch.Namespace, Name: pvcName}, &pvc); err != nil {
+						if err := k.Client.Get(context.Background(), types.NamespacedName{Namespace: b.Elasticsearch.Namespace, Name: pvcName}, &pvc); err != nil {
 							return err
 						}
 						reportedStorage := pvc.Status.Capacity.Storage()
@@ -174,7 +212,7 @@ func TestVolumeExpansion(t *testing.T) {
 				Test: test.Eventually(func() error {
 					for _, ssetName := range []string{masterSset, dataSset} {
 						var sset appsv1.StatefulSet
-						if err := k.Client.Get(types.NamespacedName{Namespace: b.Elasticsearch.Namespace, Name: ssetName}, &sset); err != nil {
+						if err := k.Client.Get(context.Background(), types.NamespacedName{Namespace: b.Elasticsearch.Namespace, Name: ssetName}, &sset); err != nil {
 							return err
 						}
 						if !sset.Spec.VolumeClaimTemplates[0].Spec.Resources.Requests.Storage().Equal(resizedStorage) {
@@ -191,7 +229,7 @@ func TestVolumeExpansion(t *testing.T) {
 
 func getResizeableStorageClass(k8sClient k8s.Client) (string, error) {
 	var scs storagev1.StorageClassList
-	if err := k8sClient.List(&scs); err != nil {
+	if err := k8sClient.List(context.Background(), &scs); err != nil {
 		return "", err
 	}
 	for _, sc := range scs.Items {

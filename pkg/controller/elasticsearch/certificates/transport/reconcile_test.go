@@ -5,6 +5,7 @@
 package transport
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -58,6 +59,7 @@ func TestReconcileTransportCertificatesSecrets(t *testing.T) {
 			},
 			want: &reconciler.Results{},
 			assertSecrets: func(t *testing.T, secrets corev1.SecretList) {
+				t.Helper()
 				// Check that there is 1 Secret per StatefulSet
 				assert.Equal(t, 3, len(secrets.Items))
 
@@ -113,6 +115,7 @@ func TestReconcileTransportCertificatesSecrets(t *testing.T) {
 			},
 			want: &reconciler.Results{},
 			assertSecrets: func(t *testing.T, secrets corev1.SecretList) {
+				t.Helper()
 				// Check that there is 1 Secret per StatefulSet
 				assert.Equal(t, 3, len(secrets.Items))
 
@@ -135,7 +138,6 @@ func TestReconcileTransportCertificatesSecrets(t *testing.T) {
 				// Check the labels elasticsearch.k8s.elastic.co/cluster-name and elasticsearch.k8s.elastic.co/statefulset-name
 				assert.Equal(t, testEsName, transportCerts2.Labels["elasticsearch.k8s.elastic.co/cluster-name"])
 				assert.Equal(t, "test-es-name-es-sset2", transportCerts2.Labels["elasticsearch.k8s.elastic.co/statefulset-name"])
-
 			},
 		},
 		{
@@ -154,6 +156,7 @@ func TestReconcileTransportCertificatesSecrets(t *testing.T) {
 			},
 			want: &reconciler.Results{},
 			assertSecrets: func(t *testing.T, secrets corev1.SecretList) {
+				t.Helper()
 				// Check that there is 1 Secret per StatefulSet
 				assert.Equal(t, 2, len(secrets.Items))
 
@@ -185,7 +188,7 @@ func TestReconcileTransportCertificatesSecrets(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			k8sClient := k8s.WrappedFakeClient(tt.args.initialObjects...)
+			k8sClient := k8s.NewFakeClient(tt.args.initialObjects...)
 			if got := ReconcileTransportCertificatesSecrets(k8sClient, tt.args.ca, *tt.args.es, tt.args.rotationParams); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ReconcileTransportCertificatesSecrets() = %v, want %v", got, tt.want)
 			}
@@ -193,7 +196,7 @@ func TestReconcileTransportCertificatesSecrets(t *testing.T) {
 			var secrets corev1.SecretList
 			matchLabels := label.NewLabelSelectorForElasticsearch(*tt.args.es)
 			ns := client.InNamespace(tt.args.es.Namespace)
-			assert.NoError(t, k8sClient.List(&secrets, matchLabels, ns))
+			assert.NoError(t, k8sClient.List(context.Background(), &secrets, matchLabels, ns))
 			tt.assertSecrets(t, secrets)
 		})
 	}
@@ -213,7 +216,7 @@ func TestDeleteStatefulSetTransportCertificate(t *testing.T) {
 		{
 			name: "StatefulSet transport Secret exists",
 			args: args{
-				client: k8s.WrappedFakeClient(&corev1.Secret{
+				client: k8s.NewFakeClient(&corev1.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-es-name-es-sset1-es-transport-certs",
 						Namespace: testNamespace,
@@ -223,17 +226,19 @@ func TestDeleteStatefulSetTransportCertificate(t *testing.T) {
 				ssetName: esv1.StatefulSet(testEsName, "sset1"),
 			},
 			assertErr: func(t *testing.T, err error) {
+				t.Helper()
 				assert.Nil(t, err)
 			},
 		},
 		{
 			name: "StatefulSet transport Secret does not exist",
 			args: args{
-				client:   k8s.WrappedFakeClient(),
+				client:   k8s.NewFakeClient(),
 				es:       testES,
 				ssetName: esv1.StatefulSet(testEsName, "sset1"),
 			},
 			assertErr: func(t *testing.T, err error) {
+				t.Helper()
 				assert.NotNil(t, err)
 				assert.True(t, errors.IsNotFound(err))
 			},
@@ -260,7 +265,7 @@ func TestDeleteLegacyTransportCertificate(t *testing.T) {
 		{
 			name: "Former cluster transport Secret exists",
 			args: args{
-				client: k8s.WrappedFakeClient(&corev1.Secret{
+				client: k8s.NewFakeClient(&corev1.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-es-name-es-transport-certificates", // Create a Secret with the former name
 						Namespace: testNamespace,
@@ -269,16 +274,18 @@ func TestDeleteLegacyTransportCertificate(t *testing.T) {
 				es: testES,
 			},
 			assertErr: func(t *testing.T, err error) {
+				t.Helper()
 				assert.Nil(t, err)
 			},
 		},
 		{
 			name: "Former cluster transport Secret does not exist",
 			args: args{
-				client: k8s.WrappedFakeClient(),
+				client: k8s.NewFakeClient(),
 				es:     testES,
 			},
 			assertErr: func(t *testing.T, err error) {
+				t.Helper()
 				assert.NotNil(t, err)
 				assert.True(t, errors.IsNotFound(err))
 			},
@@ -324,10 +331,11 @@ func Test_ensureTransportCertificateSecretExists(t *testing.T) {
 		{
 			name: "should create a secret if it does not already exist",
 			args: args{
-				c:     k8s.WrappedFakeClient(),
+				c:     k8s.NewFakeClient(),
 				owner: testES,
 			},
 			want: func(t *testing.T, secret *corev1.Secret) {
+				t.Helper()
 				// owner references are set upon creation, so ignore for comparison
 				expected := defaultSecretWith(func(s *corev1.Secret) {
 					s.OwnerReferences = secret.OwnerReferences
@@ -338,12 +346,13 @@ func Test_ensureTransportCertificateSecretExists(t *testing.T) {
 		{
 			name: "should update an existing secret",
 			args: args{
-				c: k8s.WrappedFakeClient(defaultSecretWith(func(secret *corev1.Secret) {
+				c: k8s.NewFakeClient(defaultSecretWith(func(secret *corev1.Secret) {
 					secret.ObjectMeta.UID = types.UID("42")
 				})),
 				owner: testES,
 			},
 			want: func(t *testing.T, secret *corev1.Secret) {
+				t.Helper()
 				// UID should be kept the same
 				comparison.AssertEqual(t, defaultSecretWith(func(secret *corev1.Secret) {
 					secret.ObjectMeta.UID = types.UID("42")
@@ -353,7 +362,7 @@ func Test_ensureTransportCertificateSecretExists(t *testing.T) {
 		{
 			name: "should not modify the secret data if already exists",
 			args: args{
-				c: k8s.WrappedFakeClient(defaultSecretWith(func(secret *corev1.Secret) {
+				c: k8s.NewFakeClient(defaultSecretWith(func(secret *corev1.Secret) {
 					secret.ObjectMeta.UID = types.UID("42")
 					secret.Data = map[string][]byte{
 						"existing": []byte("data"),
@@ -362,6 +371,7 @@ func Test_ensureTransportCertificateSecretExists(t *testing.T) {
 				owner: testES,
 			},
 			want: func(t *testing.T, secret *corev1.Secret) {
+				t.Helper()
 				// UID and data should be kept
 				comparison.AssertEqual(t, defaultSecretWith(func(secret *corev1.Secret) {
 					secret.ObjectMeta.UID = types.UID("42")
@@ -374,12 +384,13 @@ func Test_ensureTransportCertificateSecretExists(t *testing.T) {
 		{
 			name: "should allow additional labels in the secret",
 			args: args{
-				c: k8s.WrappedFakeClient(defaultSecretWith(func(secret *corev1.Secret) {
+				c: k8s.NewFakeClient(defaultSecretWith(func(secret *corev1.Secret) {
 					secret.ObjectMeta.Labels["foo"] = "bar"
 				})),
 				owner: testES,
 			},
 			want: func(t *testing.T, secret *corev1.Secret) {
+				t.Helper()
 				comparison.AssertEqual(t, defaultSecretWith(func(secret *corev1.Secret) {
 					secret.ObjectMeta.Labels["foo"] = "bar"
 				}), secret)

@@ -15,8 +15,9 @@ import (
 	beatv1beta1 "github.com/elastic/cloud-on-k8s/pkg/apis/beat/v1beta1"
 	commonv1 "github.com/elastic/cloud-on-k8s/pkg/apis/common/v1"
 	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
-	entv1beta1 "github.com/elastic/cloud-on-k8s/pkg/apis/enterprisesearch/v1beta1"
+	entv1 "github.com/elastic/cloud-on-k8s/pkg/apis/enterprisesearch/v1"
 	kbv1 "github.com/elastic/cloud-on-k8s/pkg/apis/kibana/v1"
+	mapsv1alpha1 "github.com/elastic/cloud-on-k8s/pkg/apis/maps/v1alpha1"
 	"github.com/elastic/cloud-on-k8s/pkg/controller/kibana"
 	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
 	"github.com/stretchr/testify/require"
@@ -126,7 +127,7 @@ func TestNewReporter(t *testing.T) {
 	kb2, s2 := createKbAndSecret("kb2", "ns2", 2)
 	kb3, s3 := createKbAndSecret("kb3", "ns3", 3)
 
-	client := k8s.FakeClient(
+	client := k8s.NewFakeClient(
 		&kb1,
 		&kb2,
 		&kb3,
@@ -136,9 +137,22 @@ func TestNewReporter(t *testing.T) {
 		&esv1.Elasticsearch{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: "ns1",
+				Name:      "autoscaled",
+				Annotations: map[string]string{
+					esv1.ElasticsearchAutoscalingSpecAnnotationName: "{}",
+				},
 			},
 			Status: esv1.ElasticsearchStatus{
 				AvailableNodes: 3,
+			},
+		},
+		&esv1.Elasticsearch{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "ns1",
+				Name:      "non-autoscaled",
+			},
+			Status: esv1.ElasticsearchStatus{
+				AvailableNodes: 6,
 			},
 		},
 		&apmv1.ApmServer{
@@ -151,11 +165,11 @@ func TestNewReporter(t *testing.T) {
 				},
 			},
 		},
-		&entv1beta1.EnterpriseSearch{
+		&entv1.EnterpriseSearch{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: "ns1",
 			},
-			Status: entv1beta1.EnterpriseSearchStatus{
+			Status: entv1.EnterpriseSearchStatus{
 				DeploymentStatus: commonv1.DeploymentStatus{
 					AvailableNodes: 3,
 				},
@@ -218,6 +232,17 @@ func TestNewReporter(t *testing.T) {
 				AvailableNodes: 6,
 			},
 		},
+		&mapsv1alpha1.ElasticMapsServer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "maps1",
+				Namespace: "ns1",
+			},
+			Status: mapsv1alpha1.MapsStatus{
+				DeploymentStatus: commonv1.DeploymentStatus{
+					AvailableNodes: 1,
+				},
+			},
+		},
 		&corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "elastic-licensing",
@@ -268,14 +293,18 @@ func TestNewReporter(t *testing.T) {
       pod_count: 8
       resource_count: 2
     elasticsearches:
-      pod_count: 3
-      resource_count: 1
+      autoscaled_resource_count: 1
+      pod_count: 9
+      resource_count: 2
     enterprisesearches:
       pod_count: 3
       resource_count: 1
     kibanas:
       pod_count: 0
       resource_count: 2
+    maps:
+      pod_count: 1
+      resource_count: 1
 `),
 	}
 

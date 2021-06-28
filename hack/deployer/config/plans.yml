@@ -3,23 +3,23 @@ plans:
   operation: create
   clusterName: ci
   provider: gke
-  kubernetesVersion: 1.15
+  kubernetesVersion: 1.18
   machineType: n1-standard-8
   serviceAccount: true
   psp: true
+  # use kustomize in GKE to remove the NVMe provisioning already taken care of by the platform
+  diskSetup: kubectl apply -k hack/deployer/config/local-disks
   gke:
     region: europe-west2
     adminUsername: admin
     localSsdCount: 1
     nodeCountPerZone: 1
-    # use kustomize in GKE to remove the NVMe provisioning already taken care of by the platform
-    diskSetup: kubectl apply -k hack/deployer/config/local-disks
     gcpScopes: https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append
 - id: gke-dev
   operation: create
   clusterName: dev
   provider: gke
-  kubernetesVersion: 1.15
+  kubernetesVersion: 1.18
   machineType: n1-standard-8
   serviceAccount: false
   psp: false
@@ -47,19 +47,19 @@ plans:
   operation: create
   clusterName: ci
   provider: aks
-  kubernetesVersion: 1.19.6
+  kubernetesVersion: 1.20.5
   machineType: Standard_D8s_v3
   serviceAccount: true
   psp: false
+  diskSetup: kubectl apply -k hack/deployer/config/local-disks
   aks:
     nodeCount: 3
     location: westeurope
-    diskSetup: kubectl apply -k hack/deployer/config/local-disks
 - id: aks-dev
   operation: create
   clusterName: dev
   provider: aks
-  kubernetesVersion: 1.19.6
+  kubernetesVersion: 1.20.5
   machineType: Standard_D8s_v3
   serviceAccount: false
   psp: false
@@ -75,17 +75,16 @@ plans:
   ocp:
     region: europe-west2
     nodeCount: 3
-    overwriteDefaultKubeconfig: true
 - id: ocp-dev
   operation: create
   clusterName: dev
+  clientVersion: 4.7.0
   provider: ocp
   machineType: n1-standard-8
   serviceAccount: true
   ocp:
     region: europe-west1
     nodeCount: 3
-    overwriteDefaultKubeconfig: true
 - id: ocp3-ci
   operation: create
   clusterName: ci
@@ -109,11 +108,11 @@ plans:
   machineType: c5d.2xlarge
   serviceAccount: false
   kubernetesVersion: 1.17
+  diskSetup: kubectl apply -f hack/deployer/config/local-disks/ssd-provisioner.yaml
   eks:
-    region: eu-central-1
+    region: eu-west-3
     nodeCount: 3
     nodeAMI: auto
-    diskSetup: kubectl apply -f hack/deployer/config/local-disks/ssd-provisioner.yaml
 - id: eks-arm-ci
   operation: create
   clusterName: arm-ci
@@ -121,11 +120,11 @@ plans:
   machineType: m6gd.2xlarge
   serviceAccount: false
   kubernetesVersion: 1.18
+  diskSetup: kubectl apply -f hack/deployer/config/local-disks/ssd-provisioner.yaml
   eks:
     region: eu-west-1
     nodeCount: 3
     nodeAMI: auto
-    diskSetup: kubectl apply -f hack/deployer/config/local-disks/ssd-provisioner.yaml
 - id: eks-dev
   operation: create
   clusterName: dev
@@ -136,7 +135,7 @@ plans:
   eks:
     region: eu-west-2
     nodeCount: 3
-    nodeAMI: static
+    nodeAMI: auto
 - id: e2e-monitor
   operation: create
   clusterName: e2e-monitor

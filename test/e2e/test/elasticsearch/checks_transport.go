@@ -47,7 +47,7 @@ func CheckTransportCACertificate(es esv1.Elasticsearch, ca *x509.Certificate) er
 		RootCAs: certPool,
 		// go requires either ServerName or InsecureSkipVerify (or both) when handshaking as a client since 1.3:
 		// https://github.com/golang/go/commit/fca335e91a915b6aae536936a7694c4a2a007a60
-		InsecureSkipVerify: true, // nolint:gosec
+		InsecureSkipVerify: true, //nolint:gosec
 	}
 	var correctCertsPresented bool
 	config.VerifyPeerCertificate = func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
@@ -70,17 +70,17 @@ func CheckTransportCACertificate(es esv1.Elasticsearch, ca *x509.Certificate) er
 	return fmt.Errorf("expected %v %s among peer certificates but was not found, handshake err %w", ca.Issuer, ca.SerialNumber, err)
 }
 
-func (b Builder) CheckTransportCertificatesStep(k *test.K8sClient) test.Step {
+func (e *esClusterChecks) CheckTransportCertificatesStep() test.Step {
 	return test.Step{
 		Name: "Verify TLS CA cert on transport layer is the expected one",
 		Test: test.Eventually(func() error {
 			var secret corev1.Secret
-			secretName := certificates.PublicTransportCertsSecretName(esv1.ESNamer, b.Elasticsearch.Name)
+			secretName := certificates.PublicTransportCertsSecretName(esv1.ESNamer, e.Elasticsearch.Name)
 			secretNSN := types.NamespacedName{
-				Namespace: b.Elasticsearch.Namespace,
+				Namespace: e.Elasticsearch.Namespace,
 				Name:      secretName,
 			}
-			if err := k.Client.Get(secretNSN, &secret); err != nil {
+			if err := e.k.Client.Get(context.Background(), secretNSN, &secret); err != nil {
 				return err
 			}
 			caCertsData, exists := secret.Data[certificates.CAFileName]
@@ -96,7 +96,7 @@ func (b Builder) CheckTransportCertificatesStep(k *test.K8sClient) test.Step {
 					certificates.CAFileName, secretName, len(caCerts),
 				)
 			}
-			return CheckTransportCACertificate(b.Elasticsearch, caCerts[0])
+			return CheckTransportCACertificate(e.Elasticsearch, caCerts[0])
 		}),
 	}
 }

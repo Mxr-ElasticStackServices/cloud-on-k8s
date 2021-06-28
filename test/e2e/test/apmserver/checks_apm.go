@@ -45,6 +45,7 @@ func (b Builder) CheckStackTestSteps(k *test.K8sClient) test.StepList {
 	}.WithSteps(a.CheckAgentConfiguration(b.ApmServer, k))
 }
 
+//nolint:thelper
 func (c *apmClusterChecks) BuildApmServerClient(apm apmv1.ApmServer, k *test.K8sClient,
 ) test.Step {
 	return test.Step{
@@ -54,7 +55,7 @@ func (c *apmClusterChecks) BuildApmServerClient(apm apmv1.ApmServer, k *test.K8s
 				// fetch the latest APM Server resource from the API because we need to get resources that are provided
 				// by the controller apm part of the status section
 				var updatedApmServer apmv1.ApmServer
-				if err := k.Client.Get(k8s.ExtractNamespacedName(&apm), &updatedApmServer); err != nil {
+				if err := k.Client.Get(context.Background(), k8s.ExtractNamespacedName(&apm), &updatedApmServer); err != nil {
 					return err
 				}
 
@@ -75,7 +76,7 @@ func (c *apmClusterChecks) BuildApmServerClient(apm apmv1.ApmServer, k *test.K8s
 				if len(namespace) == 0 {
 					namespace = apm.Namespace
 				}
-				if err := k.Client.Get(types.NamespacedName{
+				if err := k.Client.Get(context.Background(), types.NamespacedName{
 					Namespace: namespace,
 					Name:      apm.Spec.ElasticsearchRef.Name,
 				}, &es); err != nil {
@@ -103,6 +104,7 @@ func (c *apmClusterChecks) CheckApmServerReachable() test.Step {
 	}
 }
 
+//nolint:thelper
 func (c *apmClusterChecks) CheckApmServerVersion(apm apmv1.ApmServer) test.Step {
 	return test.Step{
 		Name: "ApmServer version should be the expected one",
@@ -117,6 +119,7 @@ func (c *apmClusterChecks) CheckApmServerVersion(apm apmv1.ApmServer) test.Step 
 	}
 }
 
+//nolint:thelper
 func (c *apmClusterChecks) CheckEventsAPI() test.Step {
 	sampleBody := `{"metadata": { "service": {"name": "1234_service-12a3", "language": {"name": "ecmascript"}, "agent": {"version": "3.14.0", "name": "elastic-node"}}}}
 { "error": {"id": "abcdef0123456789", "timestamp": 1533827045999000,"log": {"level": "custom log level","message": "Cannot read property 'baz' of undefined"}}}
@@ -151,6 +154,7 @@ func (c *apmClusterChecks) CheckRUMEventsAPI(rumEnabled bool) test.Step {
 		should = "accepted"
 		assertError = assert.Nil
 	}
+	//nolint:thelper
 	return test.Step{
 		Name: "Events should be " + should,
 		Test: func(t *testing.T) {
@@ -183,7 +187,7 @@ func (c *apmClusterChecks) CheckEventsInElasticsearch(apm apmv1.ApmServer, k *te
 		Test: test.Eventually(func() error {
 			// Fetch the last version of the APM Server
 			var updatedApmServer apmv1.ApmServer
-			if err := k.Client.Get(k8s.ExtractNamespacedName(&apm), &updatedApmServer); err != nil {
+			if err := k.Client.Get(context.Background(), k8s.ExtractNamespacedName(&apm), &updatedApmServer); err != nil {
 				return err
 			}
 
@@ -241,7 +245,7 @@ func assertCountIndexEqual(esClient client.Client, index string, expected int) e
 
 // countIndex counts the number of document in an index.
 func countIndex(esClient client.Client, indexName string) (int, error) {
-	r, err := http.NewRequest(
+	r, err := http.NewRequest( //nolint:noctx
 		http.MethodGet, fmt.Sprintf("/%s/_count", indexName),
 		nil,
 	)
@@ -284,7 +288,7 @@ func (c *apmClusterChecks) CheckAgentConfiguration(apm apmv1.ApmServer, k *test.
 			Name: "Create the default Agent Configuration in Kibana",
 			Test: test.Eventually(func() error {
 				kb := kbv1.Kibana{}
-				if err := k.Client.Get(apm.Spec.KibanaRef.WithDefaultNamespace(apm.Namespace).NamespacedName(), &kb); err != nil {
+				if err := k.Client.Get(context.Background(), apm.Spec.KibanaRef.WithDefaultNamespace(apm.Namespace).NamespacedName(), &kb); err != nil {
 					return err
 				}
 
@@ -296,7 +300,7 @@ func (c *apmClusterChecks) CheckAgentConfiguration(apm apmv1.ApmServer, k *test.
 				uri := "/api/apm/settings/agent-configuration"
 
 				// URI is slightly different before 7.7.0, we need to add "/new" at the end
-				if !apmVersion.IsSameOrAfter(version.MustParse("7.7.0")) {
+				if !apmVersion.GTE(version.MustParse("7.7.0")) {
 					uri += "/new"
 				}
 				_, err = kibana.DoRequest(k, kb, password, "PUT", uri, []byte(sampleDefaultAgentConfiguration))

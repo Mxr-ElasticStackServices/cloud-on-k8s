@@ -30,6 +30,7 @@ deploy:
                   - values/envs/devint/essdev_values.yaml
     shared-services:
       targets:
+<<<<<<< HEAD
 #        ess-k8s-commercial-shared-services:
 #          active: false
 #          properties:
@@ -51,6 +52,8 @@ deploy:
 #                values:
 #                  - values/envs/sharedservices/govcloud_values.yaml
         ess-k8s-sc2s-shared-services:
+=======
+        ess-k8s-commercial-shared-services:
           active: true
           properties:
             charts:
@@ -59,6 +62,30 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
+                  - values/envs/sharedservices/commercial_values.yaml
+        ess-k8s-govcloud-shared-services:
+>>>>>>> a4ede7c1746eb2ee69a9084dbf515fa14e637e06
+          active: true
+          properties:
+            charts:
+              elastic-operator:
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+<<<<<<< HEAD
+=======
+                  - values/envs/sharedservices/govcloud_values.yaml
+        ess-k8s-sc2s-shared-services:
+          active: false
+          properties:
+            charts:
+              elastic-operator:
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+>>>>>>> a4ede7c1746eb2ee69a9084dbf515fa14e637e06
                   - values/envs/sharedservices/sc2s_values.yaml
         ess-k8s-v3r-shared-services:
           active: true

@@ -5,6 +5,7 @@
 package observer
 
 import (
+	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -30,32 +31,32 @@ func WatchClusterHealthChange(m *Manager) *source.Channel {
 // healthChangeListener returns an OnObservation listener that feeds a generic
 // event when a cluster's observed health has changed.
 func healthChangeListener(reconciliation chan event.GenericEvent) OnObservation {
-	return func(cluster types.NamespacedName, previous State, new State) {
+	return func(cluster types.NamespacedName, previous State, current State) {
 		// no-op if health hasn't change
-		if !hasHealthChanged(previous, new) {
+		if !hasHealthChanged(previous, current) {
 			return
 		}
 
 		// trigger a reconciliation event for that cluster
 		evt := event.GenericEvent{
-			Meta: &metav1.ObjectMeta{
+			Object: &esv1.Elasticsearch{ObjectMeta: metav1.ObjectMeta{
 				Namespace: cluster.Namespace,
 				Name:      cluster.Name,
-			},
+			}},
 		}
 		reconciliation <- evt
 	}
 }
 
 // hasHealthChanged returns true if previous and new contain different health.
-func hasHealthChanged(previous State, new State) bool {
+func hasHealthChanged(previous State, current State) bool {
 	switch {
 	// both nil
-	case previous.ClusterHealth == nil && new.ClusterHealth == nil:
+	case previous.ClusterHealth == nil && current.ClusterHealth == nil:
 		return false
 	// both equal
-	case previous.ClusterHealth != nil && new.ClusterHealth != nil &&
-		previous.ClusterHealth.Status == new.ClusterHealth.Status:
+	case previous.ClusterHealth != nil && current.ClusterHealth != nil &&
+		previous.ClusterHealth.Status == current.ClusterHealth.Status:
 		return false
 	// else: different
 	default:

@@ -35,15 +35,15 @@ case $environment in
 ######################################
 
 write_env <<ENV
-IMG_SUFFIX = -ci
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
-TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
-OPERATOR_IMAGE = $JKS_PARAM_OPERATOR_IMAGE
+OPERATOR_IMAGE=$JKS_PARAM_OPERATOR_IMAGE
 
 PIPELINE=e2e/aks
 BUILD_NUMBER=$BUILD_NUMBER
@@ -71,15 +71,15 @@ clusterVersion=$2
 clusterName=$3
 
 write_env <<ENV
-IMG_SUFFIX = -ci
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
-TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
-OPERATOR_IMAGE = $JKS_PARAM_OPERATOR_IMAGE
+OPERATOR_IMAGE=$JKS_PARAM_OPERATOR_IMAGE
 
 PIPELINE=e2e/gke-k8s-versions
 BUILD_NUMBER=$BUILD_NUMBER
@@ -106,20 +106,18 @@ CFG
   e2e/kind-k8s-versions)
 ######################################
 
-kindNodeImage=$2
-clusterVersion=$3
-
 write_env <<ENV
-IMG_SUFFIX = -ci
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
-TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
-OPERATOR_IMAGE = $JKS_PARAM_OPERATOR_IMAGE
-KIND_NODE_IMAGE = ${kindNodeImage}
+OPERATOR_IMAGE=$JKS_PARAM_OPERATOR_IMAGE
+KIND_NODE_IMAGE=$2
+KIND_VERSION=$3
 IP_FAMILY=$4
 
 PIPELINE=e2e/kind-k8s-versions
@@ -136,14 +134,14 @@ ENV
 ######################################
 
 write_env <<ENV
-IMG_SUFFIX = -ci
-REGISTRY_NAMESPACE = eck-snapshots
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+REGISTRY_NAMESPACE=eck-snapshots
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
-TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
 PIPELINE=e2e/master
 BUILD_NUMBER=$BUILD_NUMBER
@@ -172,20 +170,20 @@ clusterName=$2
 
 write_env <<ENV
 E2E_DEPLOY_CHAOS_JOB=true
-IMG_SUFFIX = -ci
-REGISTRY_NAMESPACE = eck-snapshots
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+REGISTRY_NAMESPACE=eck-snapshots
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
-export E2E_DEPLOY_CHAOS_JOB = true
-TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+export E2E_DEPLOY_CHAOS_JOB=true
+TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
 PIPELINE=e2e/resilience
 BUILD_NUMBER=$BUILD_NUMBER
 E2E_PROVIDER=gke
-OPERATOR_IMAGE = $JKS_PARAM_OPERATOR_IMAGE
+OPERATOR_IMAGE=$JKS_PARAM_OPERATOR_IMAGE
 CLUSTER_NAME=${clusterName}
 TEST_OPTS=-race
 ENV
@@ -207,15 +205,15 @@ CFG
 ######################################
 
 write_env <<ENV
-IMG_SUFFIX = -ci
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
-TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
-OPERATOR_IMAGE = $JKS_PARAM_OPERATOR_IMAGE
+OPERATOR_IMAGE=$JKS_PARAM_OPERATOR_IMAGE
 
 PIPELINE=e2e/ocp
 BUILD_NUMBER=$BUILD_NUMBER
@@ -227,6 +225,7 @@ write_deployer_config <<CFG
 id: ocp-ci
 overrides:
   clusterName: $BUILD_TAG
+  clientVersion: $2
   vaultInfo:
     address: $VAULT_ADDR
     roleId: $VAULT_ROLE_ID
@@ -241,15 +240,15 @@ CFG
 ######################################
 
 write_env <<ENV
-IMG_SUFFIX = -ci
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
-TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
-OPERATOR_IMAGE = $JKS_PARAM_OPERATOR_IMAGE
+OPERATOR_IMAGE=$JKS_PARAM_OPERATOR_IMAGE
 
 PIPELINE=e2e/ocp3
 BUILD_NUMBER=$BUILD_NUMBER
@@ -275,15 +274,15 @@ CFG
 ######################################
 
 write_env <<ENV
-IMG_SUFFIX = -ci
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
-TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
-OPERATOR_IMAGE = $JKS_PARAM_OPERATOR_IMAGE
+OPERATOR_IMAGE=$JKS_PARAM_OPERATOR_IMAGE
 
 PIPELINE=e2e/eks
 BUILD_NUMBER=$BUILD_NUMBER
@@ -307,18 +306,18 @@ CFG
 ######################################
 
 write_env <<ENV
-IMG_SUFFIX = -ci
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-GO_TAGS = release
-E2E_TAGS = es
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
-# TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json disabled b/c https://github.com/elastic/elasticsearch/issues/68083
-# MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json disabled b/c beats cannot run on ARM
+GO_TAGS=release
+E2E_TAGS=es
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+# TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json disabled b/c https://github.com/elastic/elasticsearch/issues/68083
+# MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json disabled b/c beats cannot run on ARM
 
-OPERATOR_IMAGE = $JKS_PARAM_OPERATOR_IMAGE
+OPERATOR_IMAGE=$JKS_PARAM_OPERATOR_IMAGE
 
-PIPELINE=e2e/eks
+PIPELINE=e2e/eks-arm
 BUILD_NUMBER=$BUILD_NUMBER
 E2E_PROVIDER=eks
 CLUSTER_NAME=${BUILD_TAG}-arm
@@ -348,16 +347,16 @@ testLicensePKeyPath=$(case $isSnapshotVersion in (Yes) echo "/go/src/github.com/
 operatorImage=${OPERATOR_IMAGE:-$JKS_PARAM_OPERATOR_IMAGE}
 
 write_env <<ENV
-IMG_SUFFIX = -ci
-E2E_REGISTRY_NAMESPACE = eck-ci
-IS_SNAPSHOT_BUILD = ${isSnapshotVersion}
+IMG_SUFFIX=-ci
+E2E_REGISTRY_NAMESPACE=eck-ci
+IS_SNAPSHOT_BUILD=${isSnapshotVersion}
 
-TEST_LICENSE = /go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
-TEST_LICENSE_PKEY_PATH = $testLicensePKeyPath
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+TEST_LICENSE=/go/src/github.com/elastic/cloud-on-k8s/.ci/test-license.json
+TEST_LICENSE_PKEY_PATH=$testLicensePKeyPath
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
-OPERATOR_IMAGE = ${operatorImage}
-E2E_STACK_VERSION = ${stackVersion}
+OPERATOR_IMAGE=${operatorImage}
+E2E_STACK_VERSION=${stackVersion}
 
 PIPELINE=e2e/stack-versions
 BUILD_NUMBER=$BUILD_NUMBER
@@ -384,12 +383,12 @@ CFG
 ######################################
 
 write_env <<ENV
-IMG_SUFFIX = -ci
-REGISTRY_NAMESPACE = eck-snapshots
-E2E_REGISTRY_NAMESPACE = eck-ci
+IMG_SUFFIX=-ci
+REGISTRY_NAMESPACE=eck-snapshots
+E2E_REGISTRY_NAMESPACE=eck-ci
 
-TESTS_MATCH = TestSmoke
-MONITORING_SECRETS = /go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
+TESTS_MATCH=TestSmoke
+MONITORING_SECRETS=/go/src/github.com/elastic/cloud-on-k8s/.ci/monitoring-secrets.json
 
 PIPELINE=pr
 BUILD_NUMBER=$BUILD_NUMBER
@@ -432,14 +431,14 @@ CFG
 # IMG_VERSION is generated
 
 write_env <<ENV
-REGISTRY_NAMESPACE = eck-snapshots
-IMG_SUFFIX =
+REGISTRY_NAMESPACE=eck-snapshots
+IMG_SUFFIX=
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
 
-SNAPSHOT = true
-IMG_VERSION = $(cat $WORKSPACE/VERSION)-$(date +%F)-$(git rev-parse --short --verify HEAD)
+SNAPSHOT=true
+IMG_VERSION=$(cat $WORKSPACE/VERSION)-$(date +%F)-$(git rev-parse --short --verify HEAD)
 ENV
 
   else
@@ -449,14 +448,14 @@ ENV
 ###############
 
 write_env <<ENV
-REGISTRY_NAMESPACE = eck
-IMG_SUFFIX =
+REGISTRY_NAMESPACE=eck
+IMG_SUFFIX=
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
 
-SNAPSHOT = false
-IMG_VERSION = $TAG_NAME
+SNAPSHOT=false
+IMG_VERSION=$TAG_NAME
 ENV
 
   fi
@@ -467,13 +466,13 @@ ENV
 ######################################
 
 write_env <<ENV
-IMG_SUFFIX = -dev-ci
-REGISTRY_NAMESPACE = eck-snapshots
-E2E_REGISTRY_NAMESPACE = eck-ci
-IS_SNAPSHOT_BUILD = yes
+IMG_SUFFIX=-dev-ci
+REGISTRY_NAMESPACE=eck-snapshots
+E2E_REGISTRY_NAMESPACE=eck-ci
+IS_SNAPSHOT_BUILD=yes
 
-GO_TAGS = release
-export LICENSE_PUBKEY = /go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
+GO_TAGS=release
+export LICENSE_PUBKEY=/go/src/github.com/elastic/cloud-on-k8s/.ci/license.key
 ENV
 ;;
 
@@ -553,6 +552,7 @@ id: ocp-ci
 overrides:
   operation: delete
   clusterName: $BUILD_TAG
+  clientVersion: $2
   vaultInfo:
     address: $VAULT_ADDR
     roleId: $VAULT_ROLE_ID

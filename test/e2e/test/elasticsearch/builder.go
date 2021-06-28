@@ -17,8 +17,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/rand"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -44,7 +44,34 @@ func ESPodTemplate(resources corev1.ResourceRequirements) corev1.PodTemplateSpec
 // Builder to create Elasticsearch clusters
 type Builder struct {
 	Elasticsearch esv1.Elasticsearch
-	MutatedFrom   *Builder
+
+	MutatedFrom *Builder
+
+	// expectedElasticsearch is used to compare the deployed resources with the expected ones. This is only to be used in
+	// situations where the Elasticsearch resource is modified by an external mechanism, like the autoscaling controller.
+	// In such a situation the actual resources may diverge from what was originally specified in the builder.
+	expectedElasticsearch *esv1.Elasticsearch
+}
+
+func (b Builder) DeepCopy() *Builder {
+	es := b.Elasticsearch.DeepCopy()
+	builderCopy := Builder{
+		Elasticsearch: *es,
+	}
+	if b.expectedElasticsearch != nil {
+		builderCopy.expectedElasticsearch = b.expectedElasticsearch.DeepCopy()
+	}
+	if b.MutatedFrom != nil {
+		builderCopy.MutatedFrom = b.MutatedFrom.DeepCopy()
+	}
+	return &builderCopy
+}
+
+func (b Builder) GetExpectedElasticsearch() esv1.Elasticsearch {
+	if b.expectedElasticsearch != nil {
+		return *b.expectedElasticsearch
+	}
+	return b.Elasticsearch
 }
 
 var _ test.Builder = Builder{}
@@ -78,6 +105,14 @@ func newBuilder(name, randSuffix string) Builder {
 	}.
 		WithSuffix(randSuffix).
 		WithLabel(run.TestNameLabel, name)
+}
+
+func (b Builder) WithAnnotation(key, value string) Builder {
+	if b.Elasticsearch.ObjectMeta.Annotations == nil {
+		b.Elasticsearch.ObjectMeta.Annotations = make(map[string]string)
+	}
+	b.Elasticsearch.ObjectMeta.Annotations[key] = value
+	return b
 }
 
 func (b Builder) WithSuffix(suffix string) Builder {
@@ -204,11 +239,11 @@ func (b Builder) WithESMasterDataNodes(count int, resources corev1.ResourceRequi
 	})
 }
 
-func (b Builder) WithESCoordinatorNodes(count int, resources corev1.ResourceRequirements) Builder {
+func (b Builder) WithESCoordinatingNodes(count int, resources corev1.ResourceRequirements) Builder {
 	cfg := map[string]interface{}{}
 	v := version.MustParse(b.Elasticsearch.Spec.Version)
 
-	if v.IsSameOrAfter(version.From(7, 9, 0)) {
+	if v.GTE(version.From(7, 9, 0)) {
 		cfg[esv1.NodeRoles] = []string{}
 	} else {
 		cfg[esv1.NodeMaster] = false
@@ -216,24 +251,33 @@ func (b Builder) WithESCoordinatorNodes(count int, resources corev1.ResourceRequ
 		cfg[esv1.NodeIngest] = false
 		cfg[esv1.NodeML] = false
 
-		if v.IsSameOrAfter(version.From(7, 3, 0)) {
+		if v.GTE(version.From(7, 3, 0)) {
 			cfg[esv1.NodeVotingOnly] = false
 		}
 
-		if v.IsSameOrAfter(version.From(7, 7, 0)) {
+		if v.GTE(version.From(7, 7, 0)) {
 			cfg[esv1.NodeTransform] = false
 			cfg[esv1.NodeRemoteClusterClient] = false
 		}
 	}
 
 	return b.WithNodeSet(esv1.NodeSet{
-		Name:  "coordinator",
+		Name:  "coordinating",
 		Count: int32(count),
 		Config: &commonv1.Config{
 			Data: cfg,
 		},
 		PodTemplate: ESPodTemplate(resources),
 	})
+}
+
+func (b Builder) WithExpectedNodeSets(nodeSets ...esv1.NodeSet) Builder {
+	builderCopy := b.DeepCopy()
+	for _, nodeSet := range nodeSets {
+		builderCopy.WithNodeSet(nodeSet)
+	}
+	b.expectedElasticsearch = &builderCopy.Elasticsearch
+	return b
 }
 
 func (b Builder) WithNodeSet(nodeSet esv1.NodeSet) Builder {
@@ -253,6 +297,14 @@ func (b Builder) WithNodeSet(nodeSet esv1.NodeSet) Builder {
 	}
 	nodeSet.PodTemplate.Labels[run.TestNameLabel] = b.Elasticsearch.Labels[run.TestNameLabel]
 
+	// If a nodeSet with the same name already exists, remove it
+	for i := range b.Elasticsearch.Spec.NodeSets {
+		if b.Elasticsearch.Spec.NodeSets[i].Name == nodeSet.Name {
+			b.Elasticsearch.Spec.NodeSets[i] = nodeSet
+			return b.WithDefaultPersistentVolumes()
+		}
+	}
+
 	b.Elasticsearch.Spec.NodeSets = append(b.Elasticsearch.Spec.NodeSets, nodeSet)
 	return b.WithDefaultPersistentVolumes()
 }
@@ -263,6 +315,11 @@ func (b Builder) WithESSecureSettings(secretNames ...string) Builder {
 		refs = append(refs, commonv1.SecretSource{SecretName: secretNames[i]})
 	}
 	b.Elasticsearch.Spec.SecureSettings = refs
+	return b
+}
+
+func (b Builder) WithVolumeClaimDeletePolicy(policy esv1.VolumeClaimDeletePolicy) Builder {
+	b.Elasticsearch.Spec.VolumeClaimDeletePolicy = policy
 	return b
 }
 
@@ -393,8 +450,8 @@ func (b Builder) WithPodLabel(key, value string) Builder {
 
 // -- Helper functions
 
-func (b Builder) RuntimeObjects() []runtime.Object {
-	return []runtime.Object{&b.Elasticsearch}
+func (b Builder) RuntimeObjects() []client.Object {
+	return []client.Object{&b.Elasticsearch}
 }
 
 func (b Builder) TriggersRollingUpgrade() bool {

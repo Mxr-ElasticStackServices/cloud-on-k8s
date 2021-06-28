@@ -22,7 +22,7 @@ const (
 	Ocp3GCloudPublicSSHKeyFieldName  = "gcloud-ssh-public-key"
 
 	// Ansible Docker image to manage OCP3 environments
-	AnsibleDockerImage = "eu.gcr.io/elastic-cloud-dev/ansible:d36a9da"
+	AnsibleDockerImage = "eu.gcr.io/elastic-cloud-dev/ansible:d4910de"
 	AnsibleUser        = "jenkins"
 	// Ansible user home where some files (GCP credentials, Ansible vars and output) are mounted from the CI container
 	AnsibleHomePath           = "/home/ansible"
@@ -33,11 +33,6 @@ const (
 	// Default OCP3 configuration for the k8s master
 	MasterCount    = 1
 	MasterInstance = "n1-standard-2"
-)
-
-var (
-	// SharedVolumeName name shared by CI container and Ansible container
-	SharedVolumeName = os.Getenv("SHARED_VOLUME_NAME")
 )
 
 func init() {
@@ -122,11 +117,8 @@ func writeGCloudSSHKey(vaultInfo VaultInfo) error {
 		return err
 	}
 	pubKeyFileName := filepath.Join(sshDir, "google_compute_engine.pub")
-	if err := client.ReadIntoFile(pubKeyFileName, OcpVaultPath, Ocp3GCloudPublicSSHKeyFieldName); err != nil {
-		return err
-	}
 
-	return nil
+	return client.ReadIntoFile(pubKeyFileName, OcpVaultPath, Ocp3GCloudPublicSSHKeyFieldName)
 }
 
 func (d Ocp3Driver) writeAnsibleVarsFile() error {
@@ -164,7 +156,7 @@ func (d Ocp3Driver) runAnsibleDockerContainer(action string) error {
 
 	params := map[string]interface{}{
 		"User":                AnsibleUser,
-		"HomeVolumeName":      SharedVolumeName,
+		"HomeVolumeName":      SharedVolumeName(),
 		"HomeVolumeMountPath": AnsibleHomePath,
 		"GCloudCredsPath":     filepath.Join(AnsibleHomePath, GCPDir, ServiceAccountFilename),
 		"GCloudSDKPath":       filepath.Join(AnsibleHomePath, GCPDir),

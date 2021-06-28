@@ -6,10 +6,28 @@ package test
 
 import (
 	"bytes"
+	"context"
 	"crypto/x509"
 	"fmt"
 	"os"
 
+	agentv1alpha1 "github.com/elastic/cloud-on-k8s/pkg/apis/agent/v1alpha1"
+	apmv1 "github.com/elastic/cloud-on-k8s/pkg/apis/apm/v1"
+	beatv1beta1 "github.com/elastic/cloud-on-k8s/pkg/apis/beat/v1beta1"
+	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
+	entv1 "github.com/elastic/cloud-on-k8s/pkg/apis/enterprisesearch/v1"
+	kbv1 "github.com/elastic/cloud-on-k8s/pkg/apis/kibana/v1"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/agent"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/apmserver"
+	beatcommon "github.com/elastic/cloud-on-k8s/pkg/controller/beat/common"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/common"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/common/certificates"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/common/name"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/elasticsearch/label"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/enterprisesearch"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/kibana"
+	"github.com/elastic/cloud-on-k8s/pkg/controller/maps"
+	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -24,23 +42,6 @@ import (
 	"k8s.io/client-go/tools/remotecommand"
 	k8sclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
-
-	agentv1alpha1 "github.com/elastic/cloud-on-k8s/pkg/apis/agent/v1alpha1"
-	apmv1 "github.com/elastic/cloud-on-k8s/pkg/apis/apm/v1"
-	beatv1beta1 "github.com/elastic/cloud-on-k8s/pkg/apis/beat/v1beta1"
-	esv1 "github.com/elastic/cloud-on-k8s/pkg/apis/elasticsearch/v1"
-	entv1beta1 "github.com/elastic/cloud-on-k8s/pkg/apis/enterprisesearch/v1beta1"
-	kbv1 "github.com/elastic/cloud-on-k8s/pkg/apis/kibana/v1"
-	"github.com/elastic/cloud-on-k8s/pkg/controller/agent"
-	"github.com/elastic/cloud-on-k8s/pkg/controller/apmserver"
-	beatcommon "github.com/elastic/cloud-on-k8s/pkg/controller/beat/common"
-	"github.com/elastic/cloud-on-k8s/pkg/controller/common"
-	"github.com/elastic/cloud-on-k8s/pkg/controller/common/certificates"
-	"github.com/elastic/cloud-on-k8s/pkg/controller/common/name"
-	"github.com/elastic/cloud-on-k8s/pkg/controller/elasticsearch/label"
-	"github.com/elastic/cloud-on-k8s/pkg/controller/enterprisesearch"
-	"github.com/elastic/cloud-on-k8s/pkg/controller/kibana"
-	"github.com/elastic/cloud-on-k8s/pkg/utils/k8s"
 )
 
 type K8sClient struct {
@@ -83,7 +84,7 @@ func CreateClient() (k8s.Client, error) {
 	if err := beatv1beta1.AddToScheme(scheme.Scheme); err != nil {
 		return nil, err
 	}
-	if err := entv1beta1.AddToScheme(scheme.Scheme); err != nil {
+	if err := entv1.AddToScheme(scheme.Scheme); err != nil {
 		return nil, err
 	}
 	if err := agentv1alpha1.AddToScheme(scheme.Scheme); err != nil {
@@ -93,7 +94,7 @@ func CreateClient() (k8s.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return k8s.WrapClient(client), nil
+	return client, nil
 }
 
 func ServerVersion() (*version.Info, error) {
@@ -110,7 +111,7 @@ func ServerVersion() (*version.Info, error) {
 
 func (k *K8sClient) GetPods(opts ...k8sclient.ListOption) ([]corev1.Pod, error) {
 	var podList corev1.PodList
-	if err := k.Client.List(&podList, opts...); err != nil {
+	if err := k.Client.List(context.Background(), &podList, opts...); err != nil {
 		return nil, err
 	}
 	return podList.Items, nil
@@ -118,7 +119,7 @@ func (k *K8sClient) GetPods(opts ...k8sclient.ListOption) ([]corev1.Pod, error) 
 
 func (k *K8sClient) GetPod(namespace, name string) (corev1.Pod, error) {
 	var pod corev1.Pod
-	if err := k.Client.Get(types.NamespacedName{Namespace: namespace, Name: name}, &pod); err != nil {
+	if err := k.Client.Get(context.Background(), types.NamespacedName{Namespace: namespace, Name: name}, &pod); err != nil {
 		return corev1.Pod{}, err
 	}
 	return pod, nil
@@ -126,7 +127,7 @@ func (k *K8sClient) GetPod(namespace, name string) (corev1.Pod, error) {
 
 func (k *K8sClient) GetESStatefulSets(namespace string, esName string) ([]appsv1.StatefulSet, error) {
 	var ssetList appsv1.StatefulSetList
-	if err := k.Client.List(&ssetList,
+	if err := k.Client.List(context.Background(), &ssetList,
 		k8sclient.InNamespace(namespace),
 		k8sclient.MatchingLabels{
 			label.ClusterNameLabelName: esName,
@@ -137,7 +138,7 @@ func (k *K8sClient) GetESStatefulSets(namespace string, esName string) ([]appsv1
 }
 
 func (k *K8sClient) DeletePod(pod corev1.Pod) error {
-	return k.Client.Delete(&pod)
+	return k.Client.Delete(context.Background(), &pod)
 }
 
 func (k *K8sClient) CheckPodCount(expectedCount int, opts ...k8sclient.ListOption) error {
@@ -158,7 +159,7 @@ func (k *K8sClient) GetService(namespace, name string) (*corev1.Service, error) 
 		Namespace: namespace,
 		Name:      name,
 	}
-	if err := k.Client.Get(key, &service); err != nil {
+	if err := k.Client.Get(context.Background(), key, &service); err != nil {
 		return nil, err
 	}
 	return &service, nil
@@ -170,7 +171,7 @@ func (k *K8sClient) GetEndpoints(namespace, name string) (*corev1.Endpoints, err
 		Namespace: namespace,
 		Name:      name,
 	}
-	if err := k.Client.Get(key, &endpoints); err != nil {
+	if err := k.Client.Get(context.Background(), key, &endpoints); err != nil {
 		return nil, err
 	}
 	return &endpoints, nil
@@ -178,7 +179,7 @@ func (k *K8sClient) GetEndpoints(namespace, name string) (*corev1.Endpoints, err
 
 func (k *K8sClient) GetEvents(opts ...k8sclient.ListOption) ([]corev1.Event, error) {
 	var eventList corev1.EventList
-	if err := k.Client.List(&eventList, opts...); err != nil {
+	if err := k.Client.List(context.Background(), &eventList, opts...); err != nil {
 		return nil, err
 	}
 	return eventList.Items, nil
@@ -192,7 +193,7 @@ func (k *K8sClient) GetElasticPassword(nsn types.NamespacedName) (string, error)
 		Namespace: nsn.Namespace,
 		Name:      secretName,
 	}
-	if err := k.Client.Get(key, &secret); err != nil {
+	if err := k.Client.Get(context.Background(), key, &secret); err != nil {
 		return "", err
 	}
 	password, exists := secret.Data[elasticUserKey]
@@ -212,7 +213,7 @@ func (k *K8sClient) GetHTTPCerts(namer name.Namer, ownerNamespace, ownerName str
 		},
 	)
 
-	if err := k.Client.Get(
+	if err := k.Client.Get(context.Background(),
 		secretNSN,
 		&secret,
 	); err != nil {
@@ -233,7 +234,7 @@ func (k *K8sClient) GetCA(ownerNamespace, ownerName string, caType certificates.
 		Namespace: ownerNamespace,
 		Name:      certificates.CAInternalSecretName(esv1.ESNamer, ownerName, caType),
 	}
-	if err := k.Client.Get(key, &secret); err != nil {
+	if err := k.Client.Get(context.Background(), key, &secret); err != nil {
 		return nil, err
 	}
 
@@ -306,7 +307,7 @@ func (k *K8sClient) Exec(pod types.NamespacedName, cmd []string) (string, string
 
 func (k *K8sClient) CheckSecretsRemoved(secretRefs []types.NamespacedName) error {
 	for _, ref := range secretRefs {
-		err := k.Client.Get(ref, &corev1.Secret{})
+		err := k.Client.Get(context.Background(), ref, &corev1.Secret{})
 		if apierrors.IsNotFound(err) {
 			// secret removed, all good
 			continue
@@ -315,6 +316,33 @@ func (k *K8sClient) CheckSecretsRemoved(secretRefs []types.NamespacedName) error
 			return err
 		}
 		return fmt.Errorf("expected secret %s to be garbage-collected", ref.Name)
+	}
+	return nil
+}
+
+// CreateOrUpdateSecrets creates the given secrets, or updates them if they already exist.
+func (k K8sClient) CreateOrUpdateSecrets(secrets ...corev1.Secret) error {
+	for i := range secrets {
+		if err := k.CreateOrUpdate(&secrets[i]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (k K8sClient) CreateOrUpdate(objs ...k8sclient.Object) error {
+	for _, obj := range objs {
+		// optimistic creation
+		err := k.Client.Create(context.Background(), obj)
+		if err != nil {
+			if !apierrors.IsAlreadyExists(err) {
+				return err
+			}
+			// already exists: update instead
+			if err := k.Client.Update(context.Background(), obj); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
@@ -368,6 +396,15 @@ func BeatPodListOptions(beatNamespace, beatName, beatType string) []k8sclient.Li
 	matchLabels := k8sclient.MatchingLabels(map[string]string{
 		common.TypeLabelName:     beatcommon.TypeLabelValue,
 		beatcommon.NameLabelName: beatcommon.Name(beatName, beatType),
+	})
+	return []k8sclient.ListOption{ns, matchLabels}
+}
+
+func MapsPodListOptions(emsNS, emsName string) []k8sclient.ListOption {
+	ns := k8sclient.InNamespace(emsNS)
+	matchLabels := k8sclient.MatchingLabels(map[string]string{
+		common.TypeLabelName: maps.Type,
+		maps.NameLabelName:   emsName,
 	})
 	return []k8sclient.ListOption{ns, matchLabels}
 }

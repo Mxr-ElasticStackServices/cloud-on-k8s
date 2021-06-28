@@ -20,9 +20,11 @@ endif::[]
 - xref:{anchor_prefix}-common-k8s-elastic-co-v1beta1[$$common.k8s.elastic.co/v1beta1$$]
 - xref:{anchor_prefix}-elasticsearch-k8s-elastic-co-v1[$$elasticsearch.k8s.elastic.co/v1$$]
 - xref:{anchor_prefix}-elasticsearch-k8s-elastic-co-v1beta1[$$elasticsearch.k8s.elastic.co/v1beta1$$]
+- xref:{anchor_prefix}-enterprisesearch-k8s-elastic-co-v1[$$enterprisesearch.k8s.elastic.co/v1$$]
 - xref:{anchor_prefix}-enterprisesearch-k8s-elastic-co-v1beta1[$$enterprisesearch.k8s.elastic.co/v1beta1$$]
 - xref:{anchor_prefix}-kibana-k8s-elastic-co-v1[$$kibana.k8s.elastic.co/v1$$]
 - xref:{anchor_prefix}-kibana-k8s-elastic-co-v1beta1[$$kibana.k8s.elastic.co/v1beta1$$]
+- xref:{anchor_prefix}-maps-k8s-elastic-co-v1alpha1[$$maps.k8s.elastic.co/v1alpha1$$]
 
 
 [id="{anchor_prefix}-agent-k8s-elastic-co-v1alpha1"]
@@ -72,7 +74,7 @@ AgentSpec defines the desired state of the Agent
 | *`config`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-config[$$Config$$]__ | Config holds the Agent configuration. At most one of [`Config`, `ConfigRef`] can be specified.
 | *`configRef`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-configsource[$$ConfigSource$$]__ | ConfigRef contains a reference to an existing Kubernetes Secret holding the Agent configuration. Agent settings must be specified as yaml, under a single "agent.yml" entry. At most one of [`Config`, `ConfigRef`] can be specified.
 | *`secureSettings`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-secretsource[$$SecretSource$$]__ | SecureSettings is a list of references to Kubernetes Secrets containing sensitive configuration options for the Agent. Secrets data can be then referenced in the Agent config using the Secret's keys or as specified in `Entries` field of each SecureSetting.
-| *`serviceAccountName`* __string__ | ServiceAccountName is used to check access from the current resource to a Elasticsearch resource in a different namespace. Can only be used if ECK is enforcing RBAC on references.
+| *`serviceAccountName`* __string__ | ServiceAccountName is used to check access from the current resource to an Elasticsearch resource in a different namespace. Can only be used if ECK is enforcing RBAC on references.
 | *`daemonSet`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-agent-v1alpha1-daemonsetspec[$$DaemonSetSpec$$]__ | DaemonSet specifies the Agent should be deployed as a DaemonSet, and allows providing its spec. Cannot be used along with `deployment`.
 | *`deployment`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-agent-v1alpha1-deploymentspec[$$DeploymentSpec$$]__ | Deployment specifies the Agent should be deployed as a Deployment, and allows providing its spec. Cannot be used along with `daemonSet`.
 |===
@@ -354,8 +356,10 @@ Config represents untyped YAML configuration.
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-agent-v1alpha1-agentspec[$$AgentSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-apm-v1-apmserverspec[$$ApmServerSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-beat-v1beta1-beatspec[$$BeatSpec$$]
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1-enterprisesearchspec[$$EnterpriseSearchSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1beta1-enterprisesearchspec[$$EnterpriseSearchSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-kibana-v1-kibanaspec[$$KibanaSpec$$]
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-mapsspec[$$MapsSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-nodeset[$$NodeSet$$]
 ****
 
@@ -370,7 +374,9 @@ ConfigSource references configuration settings.
 ****
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-agent-v1alpha1-agentspec[$$AgentSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-beat-v1beta1-beatspec[$$BeatSpec$$]
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1-enterprisesearchspec[$$EnterpriseSearchSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1beta1-enterprisesearchspec[$$EnterpriseSearchSpec$$]
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-mapsspec[$$MapsSpec$$]
 ****
 
 [cols="25a,75a", options="header"]
@@ -392,8 +398,10 @@ HTTPConfig holds the HTTP layer configuration for resources.
 ****
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-apm-v1-apmserverspec[$$ApmServerSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-elasticsearchspec[$$ElasticsearchSpec$$]
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1-enterprisesearchspec[$$EnterpriseSearchSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1beta1-enterprisesearchspec[$$EnterpriseSearchSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-kibana-v1-kibanaspec[$$KibanaSpec$$]
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-mapsspec[$$MapsSpec$$]
 ****
 
 [cols="25a,75a", options="header"]
@@ -431,8 +439,10 @@ ObjectSelector defines a reference to a Kubernetes object.
 ****
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-apm-v1-apmserverspec[$$ApmServerSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-beat-v1beta1-beatspec[$$BeatSpec$$]
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1-enterprisesearchspec[$$EnterpriseSearchSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1beta1-enterprisesearchspec[$$EnterpriseSearchSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-kibana-v1-kibanaspec[$$KibanaSpec$$]
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-mapsspec[$$MapsSpec$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-agent-v1alpha1-output[$$Output$$]
 - xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-remotecluster[$$RemoteCluster$$]
 ****
@@ -442,6 +452,7 @@ ObjectSelector defines a reference to a Kubernetes object.
 | Field | Description
 | *`name`* __string__ | Name of the Kubernetes object.
 | *`namespace`* __string__ | Namespace of the Kubernetes object. If empty, defaults to the current namespace.
+| *`serviceName`* __string__ | ServiceName is the name of an existing Kubernetes service which will be used to make requests to the referenced object. It has to be in the same namespace as the referenced resource. If left empty the default HTTP service of the referenced resource will be used.
 |===
 
 
@@ -822,6 +833,8 @@ Auth contains user authentication and authorization security settings for Elasti
 |===
 
 
+
+
 [id="{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-changebudget"]
 === ChangeBudget 
 
@@ -838,6 +851,10 @@ ChangeBudget defines the constraints to consider when applying changes to the El
 | *`maxUnavailable`* __integer__ | MaxUnavailable is the maximum number of pods that can be unavailable (not ready) during the update due to circumstances under the control of the operator. Setting a negative value will disable this restriction. Defaults to 1 if not specified.
 | *`maxSurge`* __integer__ | MaxSurge is the maximum number of new pods that can be created exceeding the original number of pods defined in the specification. MaxSurge is only taken into consideration when scaling up. Setting a negative value will disable the restriction. Defaults to unbounded if not specified.
 |===
+
+
+
+
 
 
 
@@ -884,6 +901,7 @@ ElasticsearchSpec holds the specification of an Elasticsearch cluster.
 | *`secureSettings`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-secretsource[$$SecretSource$$]__ | SecureSettings is a list of references to Kubernetes secrets containing sensitive configuration options for Elasticsearch.
 | *`serviceAccountName`* __string__ | ServiceAccountName is used to check access from the current resource to a resource (eg. a remote Elasticsearch cluster) in a different namespace. Can only be used if ECK is enforcing RBAC on references.
 | *`remoteClusters`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-remotecluster[$$RemoteCluster$$] array__ | RemoteClusters enables you to establish uni-directional connections to a remote Elasticsearch cluster.
+| *`volumeClaimDeletePolicy`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-volumeclaimdeletepolicy[$$VolumeClaimDeletePolicy$$]__ | VolumeClaimDeletePolicy sets the policy for handling deletion of PersistentVolumeClaims for all NodeSets. Possible values are DeleteOnScaledownOnly and DeleteOnScaledownAndClusterDeletion. Defaults to DeleteOnScaledownAndClusterDeletion.
 |===
 
 
@@ -922,10 +940,12 @@ NodeSet is the specification for a group of Elasticsearch nodes sharing the same
 | Field | Description
 | *`name`* __string__ | Name of this set of nodes. Becomes a part of the Elasticsearch node.name setting.
 | *`config`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-config[$$Config$$]__ | Config holds the Elasticsearch configuration.
-| *`count`* __integer__ | Count of Elasticsearch nodes to deploy.
+| *`count`* __integer__ | Count of Elasticsearch nodes to deploy. If the node set is managed by an autoscaling policy the initial value is automatically set by the autoscaling controller.
 | *`podTemplate`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#podtemplatespec-v1-core[$$PodTemplateSpec$$]__ | PodTemplate provides customisation options (labels, annotations, affinity rules, resource requests, and so on) for the Pods belonging to this NodeSet.
 | *`volumeClaimTemplates`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#persistentvolumeclaim-v1-core[$$PersistentVolumeClaim$$] array__ | VolumeClaimTemplates is a list of persistent volume claims to be used by each Pod in this NodeSet. Every claim in this list must have a matching volumeMount in one of the containers defined in the PodTemplate. Items defined here take precedence over any default claims added by the operator with the same name.
 |===
+
+
 
 
 [id="{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-remotecluster"]
@@ -1015,6 +1035,18 @@ UpdateStrategy specifies how updates to the cluster should be performed.
 | Field | Description
 | *`changeBudget`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-changebudget[$$ChangeBudget$$]__ | ChangeBudget defines the constraints to consider when applying changes to the Elasticsearch cluster.
 |===
+
+
+[id="{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-volumeclaimdeletepolicy"]
+=== VolumeClaimDeletePolicy (string) 
+
+VolumeClaimDeletePolicy describes the delete policy for handling PersistentVolumeClaims that hold Elasticsearch data. Inspired by https://github.com/kubernetes/enhancements/pull/2440
+
+.Appears In:
+****
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-elasticsearch-v1-elasticsearchspec[$$ElasticsearchSpec$$]
+****
+
 
 
 
@@ -1131,6 +1163,60 @@ UpdateStrategy specifies how updates to the cluster should be performed.
 |===
 
 
+
+
+
+[id="{anchor_prefix}-enterprisesearch-k8s-elastic-co-v1"]
+== enterprisesearch.k8s.elastic.co/v1
+
+Package v1beta1 contains API schema definitions for managing Enterprise Search resources.
+
+.Resource Types
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1-enterprisesearch[$$EnterpriseSearch$$]
+
+
+
+[id="{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1-enterprisesearch"]
+=== EnterpriseSearch 
+
+EnterpriseSearch is a Kubernetes CRD to represent Enterprise Search.
+
+
+
+[cols="25a,75a", options="header"]
+|===
+| Field | Description
+| *`apiVersion`* __string__ | `enterprisesearch.k8s.elastic.co/v1`
+| *`kind`* __string__ | `EnterpriseSearch`
+| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#objectmeta-v1-meta[$$ObjectMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
+
+| *`spec`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1-enterprisesearchspec[$$EnterpriseSearchSpec$$]__ | 
+|===
+
+
+[id="{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1-enterprisesearchspec"]
+=== EnterpriseSearchSpec 
+
+EnterpriseSearchSpec holds the specification of an Enterprise Search resource.
+
+.Appears In:
+****
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-enterprisesearch-v1-enterprisesearch[$$EnterpriseSearch$$]
+****
+
+[cols="25a,75a", options="header"]
+|===
+| Field | Description
+| *`version`* __string__ | Version of Enterprise Search.
+| *`image`* __string__ | Image is the Enterprise Search Docker image to deploy.
+| *`count`* __integer__ | Count of Enterprise Search instances to deploy.
+| *`config`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-config[$$Config$$]__ | Config holds the Enterprise Search configuration.
+| *`configRef`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-configsource[$$ConfigSource$$]__ | ConfigRef contains a reference to an existing Kubernetes Secret holding the Enterprise Search configuration. Configuration settings are merged and have precedence over settings specified in `config`.
+| *`http`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-httpconfig[$$HTTPConfig$$]__ | HTTP holds the HTTP layer configuration for Enterprise Search resource.
+| *`elasticsearchRef`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-objectselector[$$ObjectSelector$$]__ | ElasticsearchRef is a reference to the Elasticsearch cluster running in the same Kubernetes cluster.
+| *`podTemplate`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#podtemplatespec-v1-core[$$PodTemplateSpec$$]__ | PodTemplate provides customisation options (labels, annotations, affinity rules, resource requests, and so on) for the Enterprise Search pods.
+| *`serviceAccountName`* __string__ | ServiceAccountName is used to check access from the current resource to a resource (eg. Elasticsearch) in a different namespace. Can only be used if ECK is enforcing RBAC on references.
+|===
 
 
 
@@ -1291,6 +1377,82 @@ KibanaSpec holds the specification of a Kibana instance.
 | *`http`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1beta1-httpconfig[$$HTTPConfig$$]__ | HTTP holds the HTTP layer configuration for Kibana.
 | *`podTemplate`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#podtemplatespec-v1-core[$$PodTemplateSpec$$]__ | PodTemplate provides customisation options (labels, annotations, affinity rules, resource requests, and so on) for the Kibana pods
 | *`secureSettings`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1beta1-secretsource[$$SecretSource$$]__ | SecureSettings is a list of references to Kubernetes secrets containing sensitive configuration options for Kibana.
+|===
+
+
+
+[id="{anchor_prefix}-maps-k8s-elastic-co-v1alpha1"]
+== maps.k8s.elastic.co/v1alpha1
+
+Package v1alpha1 contains API schema definitions for managing Elastic Maps Server resources.
+
+.Resource Types
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-elasticmapsserver[$$ElasticMapsServer$$]
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-elasticmapsserverlist[$$ElasticMapsServerList$$]
+
+
+
+[id="{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-elasticmapsserver"]
+=== ElasticMapsServer 
+
+ElasticMapsServer represents an Elastic Map Server resource in a Kubernetes cluster.
+
+.Appears In:
+****
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-elasticmapsserverlist[$$ElasticMapsServerList$$]
+****
+
+[cols="25a,75a", options="header"]
+|===
+| Field | Description
+| *`apiVersion`* __string__ | `maps.k8s.elastic.co/v1alpha1`
+| *`kind`* __string__ | `ElasticMapsServer`
+| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#objectmeta-v1-meta[$$ObjectMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
+
+| *`spec`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-mapsspec[$$MapsSpec$$]__ | 
+|===
+
+
+[id="{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-elasticmapsserverlist"]
+=== ElasticMapsServerList 
+
+ElasticMapsServerList contains a list of ElasticMapsServer
+
+
+
+[cols="25a,75a", options="header"]
+|===
+| Field | Description
+| *`apiVersion`* __string__ | `maps.k8s.elastic.co/v1alpha1`
+| *`kind`* __string__ | `ElasticMapsServerList`
+| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
+
+| *`items`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-elasticmapsserver[$$ElasticMapsServer$$]__ | 
+|===
+
+
+[id="{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-mapsspec"]
+=== MapsSpec 
+
+MapsSpec holds the specification of an Elastic Maps Server instance.
+
+.Appears In:
+****
+- xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-maps-v1alpha1-elasticmapsserver[$$ElasticMapsServer$$]
+****
+
+[cols="25a,75a", options="header"]
+|===
+| Field | Description
+| *`version`* __string__ | Version of Elastic Maps Server.
+| *`image`* __string__ | Image is the Elastic Maps Server Docker image to deploy.
+| *`count`* __integer__ | Count of Elastic Maps Server instances to deploy.
+| *`elasticsearchRef`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-objectselector[$$ObjectSelector$$]__ | ElasticsearchRef is a reference to an Elasticsearch cluster running in the same Kubernetes cluster.
+| *`config`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-config[$$Config$$]__ | Config holds the ElasticMapsServer configuration. See: https://www.elastic.co/guide/en/kibana/current/maps-connect-to-ems.html#elastic-maps-server-configuration
+| *`configRef`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-configsource[$$ConfigSource$$]__ | ConfigRef contains a reference to an existing Kubernetes Secret holding the Elastic Maps Server configuration. Configuration settings are merged and have precedence over settings specified in `config`.
+| *`http`* __xref:{anchor_prefix}-github-com-elastic-cloud-on-k8s-pkg-apis-common-v1-httpconfig[$$HTTPConfig$$]__ | HTTP holds the HTTP layer configuration for Elastic Maps Server.
+| *`podTemplate`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#podtemplatespec-v1-core[$$PodTemplateSpec$$]__ | PodTemplate provides customisation options (labels, annotations, affinity rules, resource requests, and so on) for the Elastic Maps Server pods
+| *`serviceAccountName`* __string__ | ServiceAccountName is used to check access from the current resource to a resource (eg. Elasticsearch) in a different namespace. Can only be used if ECK is enforcing RBAC on references.
 |===
 
 
