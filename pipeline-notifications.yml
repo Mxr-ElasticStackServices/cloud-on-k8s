@@ -1,4 +1,5 @@
-onfigure notifications:
+---
+# Configure notifications:
 notification:
   notifications:
     ess_pipeline_deploys_slack:
