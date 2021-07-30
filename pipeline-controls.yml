@@ -2,7 +2,11 @@ pipeline_controls_version: '1.0'
 build:
   api_version: '1.0'
 config:
-  build_type: 'helm_only'   
+  build_type: 'helm_only' 
+controls:
+  files:
+    notifications:
+      path: pipeline-notifications.yml
 deploy:
   properties:
     force: false
