@@ -23,7 +23,7 @@ deploy:
     devint:
       targets:
         essdev-k8s-commercial-dev:
-          active: true
+          active: false
           properties:
             charts:
               elastic-operator:
