@@ -23,7 +23,7 @@ deploy:
     devint:
       targets:
         essdev-k8s-commercial-dev:
-          active: false
+          active: true
           properties:
             charts:
               elastic-operator:
@@ -65,7 +65,7 @@ deploy:
                 values:
                   - values/envs/sharedservices/sc2s_values.yaml
         ess-k8s-v3r-shared-services:
-          active: true
+          active: false
           properties:
             charts:
               elastic-operator:
