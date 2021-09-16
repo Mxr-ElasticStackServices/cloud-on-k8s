@@ -31,7 +31,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                  - values/envs/devint/essdev_values.yaml
+                  - deploy/values/envs/devint/essdev_values.yaml
     shared-services:
       targets:
         ess-k8s-commercial-shared-services:
