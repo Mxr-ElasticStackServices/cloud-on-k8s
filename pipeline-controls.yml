@@ -43,7 +43,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                  - values/envs/sharedservices/commercial_values.yaml
+                  - deploy/values/envs/sharedservices/commercial_values.yaml
         ess-k8s-govcloud-shared-services:
           active: false
           properties:
@@ -53,7 +53,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                  - values/envs/sharedservices/govcloud_values.yaml
+                  - deploy/values/envs/sharedservices/govcloud_values.yaml
         ess-k8s-sc2s-shared-services:
           active: false
           properties:
@@ -63,7 +63,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                  - values/envs/sharedservices/sc2s_values.yaml
+                  - deploy/values/envs/sharedservices/sc2s_values.yaml
         ess-k8s-v3r-shared-services:
           active: false
           properties:
@@ -73,7 +73,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                  - values/envs/sharedservices/v3r_values.yaml                  
+                  - deploy/values/envs/sharedservices/v3r_values.yaml                  
 variables:
   sources:
 #    sharedservices-commercial:
