@@ -12,7 +12,7 @@ deploy:
     force: false
     helmVersion: '3' 
     namespace: elastic-system
-    valuesDirectory: values
+    #valuesDirectory: values
     runTests: false
     cleanupTests: false
     helmTimeout: 300
