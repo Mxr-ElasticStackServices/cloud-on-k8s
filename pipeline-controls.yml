@@ -12,7 +12,7 @@ deploy:
     force: false
     helmVersion: '3' 
     namespace: elastic-system
-    #valuesDirectory: values
+    valuesDirectory: deploy/values
     runTests: false
     cleanupTests: false
     helmTimeout: 300
@@ -55,7 +55,7 @@ deploy:
                 values:
                   - deploy/values/envs/sharedservices/govcloud_values.yaml
         ess-k8s-sc2s-shared-services:
-          active: false
+          active: true
           properties:
             charts:
               elastic-operator:
