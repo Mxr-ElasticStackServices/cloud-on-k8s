@@ -35,7 +35,7 @@ deploy:
     shared-services:
       targets:
         ess-k8s-commercial-shared-services:
-          active: true
+          active: false
           properties:
             charts:
               elastic-operator:
@@ -45,7 +45,7 @@ deploy:
                 values:
                   - deploy/values/envs/sharedservices/commercial_values.yaml
         ess-k8s-govcloud-shared-services:
-          active: true
+          active: false
           properties:
             charts:
               elastic-operator:
@@ -55,7 +55,7 @@ deploy:
                 values:
                   - deploy/values/envs/sharedservices/govcloud_values.yaml
         ess-k8s-sc2s-shared-services:
-          active: false
+          active: true
           properties:
             charts:
               elastic-operator:
