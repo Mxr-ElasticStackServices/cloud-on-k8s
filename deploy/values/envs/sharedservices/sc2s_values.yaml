@@ -9,7 +9,7 @@ image:
   pullPolicy: IfNotPresent
   # tag is the container image tag. If not defined, defaults to chart appVersion.
   # This field controls the version that is deployed. 
-  tag: 1.8.0
+  tag: 1.6.0
 
 # imagePullSecrets defines the secrets to use when pulling the operator container image.
 # Commented out because we use what the pipeline provdes here through customization of the template
