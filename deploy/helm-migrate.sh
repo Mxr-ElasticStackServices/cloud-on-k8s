@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License 2.0;
+# you may not use this file except in compliance with the Elastic License 2.0.
 
-# Script to migrate an existing ECK 1.2.1 installation to Helm. 
+# Script to migrate an existing ECK 1.7.1 installation to Helm.
 
 set -euo pipefail
 
@@ -28,11 +28,10 @@ kubectl delete -n "${RELEASE_NAMESPACE}" \
     clusterrole.rbac.authorization.k8s.io/elastic-operator-view \
     clusterrole.rbac.authorization.k8s.io/elastic-operator-edit \
     clusterrolebinding.rbac.authorization.k8s.io/elastic-operator \
-    rolebinding.rbac.authorization.k8s.io/elastic-operator \
     service/elastic-webhook-server \
+    configmap/elastic-operator \
     statefulset.apps/elastic-operator \
     validatingwebhookconfiguration.admissionregistration.k8s.io/elastic-webhook.k8s.elastic.co
-
 
 echo "Installing ECK with Helm"
 helm repo add "${CHART_REPO}" "${CHART_REPO_URL}"

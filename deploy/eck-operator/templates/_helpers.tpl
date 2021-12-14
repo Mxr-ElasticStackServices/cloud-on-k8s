@@ -48,7 +48,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "eck-operator.selectorLabels" -}}
-{{- if .Values.internal.manifestGen }}
+{{- if .Values.global.manifestGen }}
 control-plane: elastic-operator
 {{- else }}
 app.kubernetes.io/name: {{ include "eck-operator.name" . }}
@@ -71,8 +71,8 @@ Create the name of the service account to use
 Determine effective Kubernetes version
 */}}
 {{- define "eck-operator.effectiveKubeVersion" -}}
-{{- if .Values.internal.manifestGen -}}
-{{- semver .Values.internal.kubeVersion -}}
+{{- if .Values.global.manifestGen -}}
+{{- semver .Values.global.kubeVersion -}}
 {{- else -}}
 {{- .Capabilities.KubeVersion.Version -}}
 {{- end -}}
@@ -82,7 +82,7 @@ Determine effective Kubernetes version
 Determine the name for the webhook 
 */}}
 {{- define "eck-operator.webhookName" -}}
-{{- if .Values.internal.manifestGen -}}
+{{- if .Values.global.manifestGen -}}
 elastic-webhook.k8s.elastic.co
 {{- else -}}
 {{- $name := include "eck-operator.name" . -}}
@@ -94,7 +94,7 @@ elastic-webhook.k8s.elastic.co
 Determine the name for the webhook secret 
 */}}
 {{- define "eck-operator.webhookSecretName" -}}
-{{- if .Values.internal.manifestGen -}}
+{{- if .Values.global.manifestGen -}}
 elastic-webhook-server-cert
 {{- else -}}
 {{- $name := include "eck-operator.name" . -}}
@@ -106,7 +106,7 @@ elastic-webhook-server-cert
 Determine the name for the webhook service 
 */}}
 {{- define "eck-operator.webhookServiceName" -}}
-{{- if .Values.internal.manifestGen -}}
+{{- if .Values.global.manifestGen -}}
 elastic-webhook-server
 {{- else -}}
 {{- $name := include "eck-operator.name" . -}}
@@ -164,6 +164,8 @@ matchPolicy: Exact
 
 {{/*
 RBAC permissions
+NOTE - any changes made to RBAC permissions below require
+updating docs/operating-eck/eck-permissions.asciidoc file.
 */}}
 {{- define "eck-operator.rbacRules" -}}
 - apiGroups:
@@ -175,14 +177,20 @@ RBAC permissions
 - apiGroups:
   - ""
   resources:
-  - pods
   - endpoints
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
   - events
   - persistentvolumeclaims
   - secrets
   - services
   - configmaps
-  - serviceaccounts
   verbs:
   - get
   - list
@@ -223,8 +231,6 @@ RBAC permissions
   - elasticsearches
   - elasticsearches/status
   - elasticsearches/finalizers # needed for ownerReferences with blockOwnerDeletion on OCP
-  - enterpriselicenses
-  - enterpriselicenses/status
   verbs:
   - get
   - list
@@ -232,7 +238,6 @@ RBAC permissions
   - create
   - update
   - patch
-  - delete
 - apiGroups:
   - kibana.k8s.elastic.co
   resources:
@@ -246,7 +251,6 @@ RBAC permissions
   - create
   - update
   - patch
-  - delete
 - apiGroups:
   - apm.k8s.elastic.co
   resources:
@@ -260,7 +264,6 @@ RBAC permissions
   - create
   - update
   - patch
-  - delete
 - apiGroups:
   - enterprisesearch.k8s.elastic.co
   resources:
@@ -274,7 +277,6 @@ RBAC permissions
   - create
   - update
   - patch
-  - delete
 - apiGroups:
   - beat.k8s.elastic.co
   resources:
@@ -288,7 +290,6 @@ RBAC permissions
   - create
   - update
   - patch
-  - delete
 - apiGroups:
   - agent.k8s.elastic.co
   resources:
@@ -302,7 +303,6 @@ RBAC permissions
   - create
   - update
   - patch
-  - delete
 - apiGroups:
   - maps.k8s.elastic.co
   resources:
@@ -316,7 +316,6 @@ RBAC permissions
   - create
   - update
   - patch
-  - delete
 {{- end -}}
 
 {{/*
@@ -334,7 +333,6 @@ RBAC permissions on non-namespaced resources
 - apiGroups:
   - admissionregistration.k8s.io
   resources:
-  - mutatingwebhookconfigurations
   - validatingwebhookconfigurations
   verbs:
   - get

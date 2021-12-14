@@ -35,7 +35,11 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+<<<<<<< HEAD
       imagePullSecrets: 
+=======
+      imagePullSecrets:
+>>>>>>> 1.9maxar
         - name: {{ .Values.pipeline.image_pull_secrets.default | quote }}
       containers:
         - image: "{{ .Values.maxar.docker.registry }}/{{ .Values.image.path }}:{{ default .Chart.AppVersion .Values.image.tag }}"
@@ -44,7 +48,6 @@ spec:
           args:
             - "manager"
             - "--config=/conf/eck.yaml"
-            - "--distribution-channel={{ .Values.telemetry.distributionChannel }}"
           {{- with .Values.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
@@ -86,7 +89,7 @@ spec:
             - containerPort: 9443
               name: https-webhook
               protocol: TCP
-            {{- end }}  
+            {{- end }}
           {{- end }}
           volumeMounts:
             - mountPath: "/conf"
