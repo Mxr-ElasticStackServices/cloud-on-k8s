@@ -35,11 +35,7 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-<<<<<<< HEAD
-      imagePullSecrets: 
-=======
       imagePullSecrets:
->>>>>>> 1.9maxar
         - name: {{ .Values.pipeline.image_pull_secrets.default | quote }}
       containers:
         - image: "{{ .Values.maxar.docker.registry }}/{{ .Values.image.path }}:{{ default .Chart.AppVersion .Values.image.tag }}"
