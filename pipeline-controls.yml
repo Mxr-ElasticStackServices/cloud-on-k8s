@@ -64,14 +64,14 @@ deploy:
                 appendNamespace: false
                 values:
                   - deploy/values/envs/sharedservices/commercial_values.yaml
-              elastic-operator-2:
-                active: true
-                sort: 1
-                path: deploy/eck-operator
-                name: elastic-operator
-                appendNamespace: false
-                values:
-                  - deploy/values/envs/sharedservices/commercial_values.yaml
+              # elastic-operator-2:
+              #   active: true
+              #   sort: 1
+              #   path: deploy/eck-operator
+              #   name: elastic-operator
+              #   appendNamespace: false
+              #   values:
+              #     - deploy/values/envs/sharedservices/commercial_values.yaml
         ess-k8s-govcloud-shared-services:
           active: false
           properties:
