@@ -103,7 +103,7 @@ deploy:
               elastic-operator-1:
                 active: true
                 sort: 0
-                force: false
+                force: true
                 path: deploy/eck-operator/charts/eck-operator-crds/
                 name: elastic-operator
                 appendNamespace: false
