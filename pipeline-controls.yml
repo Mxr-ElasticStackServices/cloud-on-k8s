@@ -111,7 +111,7 @@ deploy:
                   - deploy/values/envs/sharedservices/sc2s_values.yaml
               elastic-operator-2:
                 active: true
-                sort: 0
+                sort: 1
                 force: false
                 path: deploy/eck-operator
                 name: elastic-operator
