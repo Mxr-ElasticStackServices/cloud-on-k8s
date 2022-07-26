@@ -1,3 +1,9 @@
+maxar:
+  docker:         
+    registry: docker.artpro.digitalglobe.com
+pipeline:   
+  image_pull_secrets:       
+      default: docker-registry-creds
 # nameOverride is the short name for the deployment. Leave empty to let Helm generate a name using chart values.
 nameOverride: "elastic-operator"
 
@@ -19,7 +25,7 @@ replicaCount: 1
 
 image:
   # repository is the container image prefixed by the registry name.
-  repository: docker.elastic.co/eck/eck-operator
+  repository: eck/eck-operator
   # pullPolicy is the container image pull policy.
   pullPolicy: IfNotPresent
   # tag is the container image tag. If not defined, defaults to chart appVersion.
@@ -141,7 +147,7 @@ config:
   metricsPort: "0"
 
   # containerRegistry to use for pulling Elasticsearch and other application container images.
-  containerRegistry: docker.elastic.co
+  containerRegistry: docker.artpro.digitalglobe.com
 
   # maxConcurrentReconciles is the number of concurrent reconciliation operations to perform per controller.
   maxConcurrentReconciles: "3"
