@@ -1,6 +1,6 @@
 maxar:
   docker:         
-    registry: docker.artpro.digitalglobe.com
+    registry: docker.artpro.digitalglobe.com:443
 pipeline:   
   image_pull_secrets:       
       default: docker-registry-creds
