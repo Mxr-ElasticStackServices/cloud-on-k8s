@@ -26,7 +26,7 @@ deploy:
     devint:
       targets:
         essdev-k8s-commercial-dev:
-          active: true
+          active: false
           properties:
             charts:
               # If you need to just do cruds, comment out the operator-2 and uncomment operator-1
