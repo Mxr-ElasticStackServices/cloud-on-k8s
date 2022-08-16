@@ -255,8 +255,6 @@ spec:
                         If left empty, the default HTTP service of the referenced
                         resource is used.
                       type: string
-                  required:
-                  - name
                   type: object
                 type: array
               fleetServerEnabled:
@@ -1136,12 +1134,14 @@ spec:
                               clusters or a single IP family on single-stack clusters),
                               or "RequireDualStack" (two IP families on dual-stack
                               configured clusters, otherwise fail). The ipFamilies
-                              and clusterIPs fields depend on the value of this field.  This
-                              field will be wiped when updating a service to type
-                              ExternalName.
+                              and clusterIPs fields depend on the value of this field.
+                              This field will be wiped when updating a service to
+                              type ExternalName.
+                            type: string
                           loadBalancerClass:
                             description: loadBalancerClass is the class of the load
                               balancer implementation this Service belongs to. If
+                              specified, the value of this field must be a label-style
                               identifier, with an optional prefix, e.g. "internal-vip"
                               or "example.com/internal-vip". Unprefixed names are
                               reserved for end-users. This field can only be set when
@@ -3607,8 +3607,6 @@ spec:
                                 the default HTTP service of the referenced resource
                                 is used.
                               type: string
-                          required:
-                          - name
                           type: object
                         type: array
                     type: object
