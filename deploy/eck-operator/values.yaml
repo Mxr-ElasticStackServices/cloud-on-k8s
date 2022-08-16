@@ -1,11 +1,9 @@
-#Maxar Customization
 maxar:
-  docker:
-    :registry: docker.artpro.digitalglobe.com:443
-pipeline:
-  image_pull_secrets:
-    default: docker-registry-cred
-
+  docker:         
+    registry: docker.artpro.digitalglobe.com:443
+pipeline:   
+  image_pull_secrets:       
+      default: docker-registry-creds
 # nameOverride is the short name for the deployment. Leave empty to let Helm generate a name using chart values.
 nameOverride: "elastic-operator"
 
@@ -27,11 +25,14 @@ replicaCount: 1
 
 image:
   # repository is the container image prefixed by the registry name.
-  path: eck/eck-operator
+  repository: eck/eck-operator
   # pullPolicy is the container image pull policy.
   pullPolicy: IfNotPresent
   # tag is the container image tag. If not defined, defaults to chart appVersion.
   tag: 1.9.0
+
+# priorityClassName defines the PriorityClass to be used by the operator pods.
+priorityClassName: ""
 
 # imagePullSecrets defines the secrets to use when pulling the operator container image.
 # imagePullSecrets: []
@@ -40,7 +41,7 @@ image:
 resources:
   limits:
     cpu: 1
-    memory: 512Mi
+    memory: 1Gi
   requests:
     cpu: 100m
     memory: 150Mi
@@ -163,8 +164,16 @@ config:
   # certificatesRotateBefore defines when to rotate a certificate that is due to expire.
   certificatesRotateBefore: 24h
 
+  # exposedNodeLabels is an array of regular expressions of node labels which are allowed to be copied as annotations on Elasticsearch Pods.
+  exposedNodeLabels: [ "topology.kubernetes.io/.*", "failure-domain.beta.kubernetes.io/.*" ]
+
   # setDefaultSecurityContext determines whether a default security context is set on application containers created by the operator.
-  setDefaultSecurityContext: true
+  # *note* that the default option now is "auto-detect" to attempt to set this properly automatically when both running
+  # in an openshift cluster, and a standard kubernetes cluster.  Valid values are as follows:
+  # "auto-detect" : auto detect
+  # "true"        : set pod security context when creating resources.
+  # "false"       : do not set pod security context when creating resources.
+  setDefaultSecurityContext: "auto-detect"
 
   # kubeClientTimeout sets the request timeout for Kubernetes API calls made by the operator.
   kubeClientTimeout: 60s
@@ -175,6 +184,9 @@ config:
   # validateStorageClass specifies whether storage classes volume expansion support should be verified.
   # Can be disabled if cluster-wide storage class RBAC access is not available.
   validateStorageClass: true
+
+  # enableLeaderElection specifies whether leader election should be enabled
+  enableLeaderElection: true
 
 # Prometheus PodMonitor configuration
 # Reference: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#podmonitor
@@ -191,7 +203,7 @@ podMonitor:
   annotations: {}
 
   # namespace determines in which namespace the podMonitor will be deployed.
-  # If not set the podMonitor will be created in the namespace to release is installed into
+  # If not set the podMonitor will be created in the namespace where the Helm release is installed into
   # namespace: monitoring
 
   # interval specifies the interval at which metrics should be scraped
@@ -209,7 +221,7 @@ podMonitor:
 
 # Globals meant for internal use only
 global:
-  # manifestGen specifies whether the chart is running under manifest generator.
+  # manifestGen specifies whether the chart is running under manifest generator. 
   # This is used for tasks specific to generating the all-in-one.yaml file.
   manifestGen: false
   # createOperatorNamespace defines whether the operator namespace manifest should be generated when in manifestGen mode.
