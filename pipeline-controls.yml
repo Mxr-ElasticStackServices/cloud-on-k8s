@@ -119,7 +119,7 @@ deploy:
                 values:
                   - deploy/values/envs/sharedservices/sc2s_values.yaml
         ess-k8s-v3r-shared-services:
-          active: false
+          active: true
           properties:
             charts:
               # If you need to just do cruds, comment out the operator-2 and uncomment operator-1
