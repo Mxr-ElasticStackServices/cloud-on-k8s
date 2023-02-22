@@ -3,7 +3,7 @@ maxar:
     registry: docker.artpro.digitalglobe.com:443
 pipeline:   
   image_pull_secrets:       
-      default: docker-registry-creds
+      default: docker-registry-cred
 # nameOverride is the short name for the deployment. Leave empty to let Helm generate a name using chart values.
 nameOverride: "elastic-operator"
 
