@@ -1,21 +1,21 @@
 apiVersion: v2
-
+  
 name: eck-operator-crds
 
 icon: https://helm.elastic.co/icons/eck.png
 
 description: |-
-  A Helm chart for installing the ECK operator Custom Resource Definitions (CRD).
+  A Helm chart for installing the ECK operator Custom Resource Definitions (CRD). 
 
 type: application
 
-version: 2.3.0
+version: 2.6.1
 
-appVersion: 2.3.0
+appVersion: 2.6.1
 
 home: https://github.com/elastic/cloud-on-k8s
 
-kubeVersion: ">=1.12.0-0"
+kubeVersion: ">=1.21.0-0"
 
 keywords:
   - Elasticsearch
