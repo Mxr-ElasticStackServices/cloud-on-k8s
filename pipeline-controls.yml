@@ -29,13 +29,13 @@ deploy:
           properties:
             charts:
             # Abe testing fleet-server deployment
-              fleet-server:
+              elastic-fleet-server:
                 active: true
                 sort: 0
-                path: deploy/eck-fleet/server
+                path: deploy/eck-fleet-server
                 values:
                   - deploy/values/envs/devint/essdev_fleet_values.yaml
-                name: fleet-server
+                name: elastic-fleet-server
                 appendNamespace: false
               # If you need to just do cruds, comment out the operator-2 and uncomment operator-1
               elastic-operator-1:

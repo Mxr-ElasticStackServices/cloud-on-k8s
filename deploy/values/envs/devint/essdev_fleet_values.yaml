@@ -9,12 +9,12 @@
 # nameOverride will override the name of the Chart with the name set here,
 # so nameOverride: quickstart, would convert to '{{ Release.name }}-quickstart'
 #
-# nameOverride: "quickstart"
+nameOverride: "elastic-fleet-server"
 #
 # fullnameOverride will override both the release name, and the chart name,
 # and will name the Fleet Server resource exactly as specified.
 #
-# fullnameOverride: "quickstart"
+fullnameOverride: "elastic-fleet-server"
 
 # Version of Elastic Fleet Server.
 #
