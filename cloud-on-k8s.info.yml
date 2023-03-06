@@ -1,0 +1,10 @@
+name: cloud-on-k82
+description: TBD
+source: https://gitub.com/Mxr-ElasticStackServices/logstash-k8s
+team: Elastic Stack Services
+data_classification:
+  - company_proprietary
+
+poc:
+  - name: Elastic Stack Services
+    email: DL-IT-ElasticStackServices@digitalglobe.com
