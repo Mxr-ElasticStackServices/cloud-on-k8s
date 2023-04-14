@@ -25,14 +25,6 @@ image:
   # tag is the container image tag. If not defined, defaults to chart appVersion.
   tag: null
 
-#adding in maxar values
-maxar:
-    docker:         
-      registry: docker.artpro.digitalglobe.com
-pipeline:   
-    image_pull_secrets:       
-        default: docker-registry-creds
-
 # priorityClassName defines the PriorityClass to be used by the operator pods.
 priorityClassName: ""
 
@@ -244,3 +236,9 @@ global:
   # kubeVersion is the effective Kubernetes version we target when generating the all-in-one.yaml.
   kubeVersion: 1.21.0
 
+maxar:
+    docker:        
+        registry: docker.artpro.digitalglobe.com
+pipeline:   
+    image_pull_secrets:       
+        default: docker-registry-creds
