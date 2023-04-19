@@ -40,7 +40,7 @@ spec:
       {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
-      - name: {{ .Values.pipeline.image_pull_secrets.default | quote }}
+        - name: {{ .Values.pipeline.image_pull_secrets.default | quote }}
       {{- end }}
       containers:
         - image: "{{ .Values.maxar.docker.registry }}/{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
