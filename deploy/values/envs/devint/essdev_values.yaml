@@ -5,6 +5,6 @@ image:
   pullPolicy: IfNotPresent
   # tag is the container image tag. If not defined, defaults to chart appVersion.
   registry: "{{ pipeline.maxar.docker.registry }}"
-  repository: ""
+  repository: docker.artpro.digitalglobe.com/eck/eck-operator
   name: operator
   tag: 2.9.0
