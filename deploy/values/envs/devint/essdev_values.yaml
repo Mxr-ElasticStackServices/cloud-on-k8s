@@ -4,7 +4,7 @@ image:
   # pullPolicy is the container image pull policy.
   pullPolicy: IfNotPresent
   # tag is the container image tag. If not defined, defaults to chart appVersion.
-  registry: "{{ pipeline.maxar.docker.registry }}"
-  repository: docker.artpro.digitalglobe.com/eck/eck-operator
+  registry: ""
+  repository: "{{ pipeline.maxar.docker.registry }}/eck/eck-operator"
   name: operator
   tag: 2.9.0
