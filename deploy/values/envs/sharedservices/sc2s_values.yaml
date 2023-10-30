@@ -8,4 +8,3 @@ image:
   repository: "{{ pipeline.maxar.docker.registry }}/eck/eck-operator"
   name: operator
   tag: 2.9.0
-

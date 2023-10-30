@@ -173,6 +173,7 @@ config:
   # containerRepository to use for pulling Elasticsearch and other application container images.
   # containerRepository: ""
 
+
   # containerSuffix suffix to be appended to container images by default. Cannot be combined with -ubiOnly flag
   # containerSuffix: ""
 

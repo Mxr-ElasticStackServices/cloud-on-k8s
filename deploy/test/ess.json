@@ -1,0 +1,78 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "elasticsearch.k8s.elastic.co/v1",
+            "kind": "Elasticsearch",
+            "metadata": {
+                "annotations": {
+                    "common.k8s.elastic.co/controller-version": "1.1.1",
+                    "elasticsearch.k8s.elastic.co/cluster-uuid": "-A7lpA4GTG2AaKWJmhJe7Q"
+                },
+                "creationTimestamp": "2020-07-15T20:36:25Z",
+                "generation": 2,
+                "name": "quickstart",
+                "namespace": "default",
+                "resourceVersion": "5649941",
+                "selfLink": "/apis/elasticsearch.k8s.elastic.co/v1/namespaces/default/elasticsearches/quickstart",
+                "uid": "7b640694-4055-4d9b-ade4-b0ac379a2e80"
+            },
+            "spec": {
+                "auth": {},
+                "http": {
+                    "service": {
+                        "metadata": {
+                            "creationTimestamp": null
+                        },
+                        "spec": {}
+                    },
+                    "tls": {
+                        "certificate": {}
+                    }
+                },
+                "nodeSets": [
+                    {
+                        "config": {
+                            "node.data": true,
+                            "node.ingest": true,
+                            "node.master": true,
+                            "node.store.allow_mmap": false
+                        },
+                        "count": 1,
+                        "name": "default",
+                        "podTemplate": {
+                            "metadata": {
+                                "creationTimestamp": null
+                            },
+                            "spec": {
+                                "containers": null
+                            }
+                        }
+                    }
+                ],
+                "transport": {
+                    "service": {
+                        "metadata": {
+                            "creationTimestamp": null
+                        },
+                        "spec": {}
+                    }
+                },
+                "updateStrategy": {
+                    "changeBudget": {}
+                },
+                "version": "7.8.0"
+            },
+            "status": {
+                "availableNodes": 1,
+                "health": "green",
+                "phase": "Ready"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": "",
+        "selfLink": ""
+    }
+}

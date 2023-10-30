@@ -44,6 +44,7 @@ deploy:
                 active: false
                 sort: 1
                 force: true
+
                 path: deploy/eck-operator
                 name: elastic-operator
                 appendNamespace: false

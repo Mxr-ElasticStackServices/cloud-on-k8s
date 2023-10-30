@@ -297,6 +297,35 @@ webhooks:
     service:
       name: {{ include "eck-operator.webhookServiceName" . }}
       namespace: {{ .Release.Namespace }}
+      path: /validate-ems-k8s-elastic-co-v1alpha1-mapsservers
+  failurePolicy: {{ .Values.webhook.failurePolicy }}
+{{- with .Values.webhook.namespaceSelector }}
+  namespaceSelector:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- with .Values.webhook.objectSelector }}
+  objectSelector:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+  name: elastic-ems-validation-v1alpha1.k8s.elastic.co
+  matchPolicy: Exact
+  admissionReviewVersions: [v1,v1beta1]
+  sideEffects: None
+  rules:
+    - apiGroups:
+        - maps.k8s.elastic.co
+      apiVersions:
+        - v1alpha1
+      operations:
+        - CREATE
+        - UPDATE
+      resources:
+        - mapsservers
+- clientConfig:
+    caBundle: {{ .Values.webhook.caBundle }}
+    service:
+      name: {{ include "eck-operator.webhookServiceName" . }}
+      namespace: {{ .Release.Namespace }}
       path: /validate-kibana-k8s-elastic-co-v1-kibana
   failurePolicy: {{ .Values.webhook.failurePolicy }}
 {{- with .Values.webhook.namespaceSelector }}
