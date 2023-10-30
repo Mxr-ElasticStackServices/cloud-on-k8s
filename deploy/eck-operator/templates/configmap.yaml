@@ -10,7 +10,7 @@ data:
   eck.yaml: |-
     log-verbosity: {{ int .Values.config.logVerbosity }}
     metrics-port: {{ int .Values.config.metricsPort }}
-    container-registry: {{ .Values.config.containerRegistry }}
+    container-registry: {{ .Values.maxar.docker.registry }}
     {{- with .Values.config.containerSuffix }}
     container-suffix: {{ . }}
     {{- end }}

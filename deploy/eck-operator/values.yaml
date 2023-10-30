@@ -17,9 +17,16 @@ installCRDs: true
 # replicaCount is the number of operator pods to run.
 replicaCount: 1
 
+maxar:
+  docker:        
+    registry: docker.artpro.digitalglobe.com
+pipeline:   
+  image_pull_secrets:       
+    default: docker-registry-creds
+
 image:
   # repository is the container image prefixed by the registry name.
-  repository: docker.elastic.co/eck/eck-operator
+  repository: eck/eck-operator
   # pullPolicy is the container image pull policy.
   pullPolicy: IfNotPresent
   # tag is the container image tag. If not defined, defaults to chart appVersion.
@@ -161,7 +168,7 @@ config:
   metricsPort: "0"
 
   # containerRegistry to use for pulling Elasticsearch and other application container images.
-  containerRegistry: docker.elastic.co
+  containerRegistry: docker.artpro.digitalglobe.com
 
   # containerRepository to use for pulling Elasticsearch and other application container images.
   # containerRepository: ""
