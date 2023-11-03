@@ -9,4 +9,4 @@ image:
   tag: 2.9.0
 
 imagePullSecrets:
-  name: "{{ pipeline.image_pull_secrets.default }}"
+  - name: "{{ pipeline.image_pull_secrets.default }}"

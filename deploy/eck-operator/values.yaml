@@ -29,8 +29,7 @@ image:
 priorityClassName: ""
 
 # imagePullSecrets defines the secrets to use when pulling the operator container image.
-imagePullSecrets:
-  name: docker-registry-creds
+imagePullSecrets: 
 
 # resources define the container resource limits for the operator.
 resources:
