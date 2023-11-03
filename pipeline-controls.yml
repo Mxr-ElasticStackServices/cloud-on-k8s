@@ -9,7 +9,7 @@ controls:
       path: pipeline-notifications.yml
 deploy:
   properties:
-    enableValuesInterpolation: false
+    enableValuesInterpolation: true
     force: false
     helmVersion: '3'
     namespace: elastic-system
