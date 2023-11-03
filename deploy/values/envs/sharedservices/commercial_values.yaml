@@ -4,7 +4,5 @@ image:
   # pullPolicy is the container image pull policy.
   pullPolicy: IfNotPresent
   # tag is the container image tag. If not defined, defaults to chart appVersion.
-  registry: ""
-  repository: "eck/eck-operator"
   name: operator
   tag: 2.9.0
