@@ -17,13 +17,6 @@ installCRDs: true
 # replicaCount is the number of operator pods to run.
 replicaCount: 1
 
-maxar:
-  docker:
-    registry: docker.artpro.digitalglobe.com
-pipeline:
-  image_pull_secrets:
-    default: docker-registry-creds
-
 image:
   # repository is the container image prefixed by the registry name.
   repository: "{{ pipeline.maxar.docker.registry }}/eck/eck-operator"
