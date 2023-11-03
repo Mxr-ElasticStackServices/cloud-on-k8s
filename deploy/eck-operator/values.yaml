@@ -30,7 +30,7 @@ priorityClassName: ""
 
 # imagePullSecrets defines the secrets to use when pulling the operator container image.
 imagePullSecrets:
-  name: "{{ pipeline.image_pull_secrets.default }}"
+  name: docker-registry-creds
 
 # resources define the container resource limits for the operator.
 resources:
