@@ -29,7 +29,8 @@ image:
 priorityClassName: ""
 
 # imagePullSecrets defines the secrets to use when pulling the operator container image.
-imagePullSecrets: "{{ pipeline.image_pull_secrets.default }}"
+imagePullSecrets:
+  name: "{{ pipeline.image_pull_secrets.default }}"
 
 # resources define the container resource limits for the operator.
 resources:
