@@ -18,15 +18,15 @@ installCRDs: true
 replicaCount: 1
 
 maxar:
-  docker:        
+  docker:
     registry: docker.artpro.digitalglobe.com
-pipeline:   
-  image_pull_secrets:       
+pipeline:
+  image_pull_secrets:
     default: docker-registry-creds
 
 image:
   # repository is the container image prefixed by the registry name.
-  repository: eck/eck-operator
+  repository: "{{ pipeline.maxar.docker.registry }}/eck/eck-operator"
   # pullPolicy is the container image pull policy.
   pullPolicy: IfNotPresent
   # tag is the container image tag. If not defined, defaults to chart appVersion.
@@ -36,7 +36,7 @@ image:
 priorityClassName: ""
 
 # imagePullSecrets defines the secrets to use when pulling the operator container image.
-imagePullSecrets: []
+imagePullSecrets: "{{ pipeline.image_pull_secrets.default }}"
 
 # resources define the container resource limits for the operator.
 resources:
