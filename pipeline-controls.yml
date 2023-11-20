@@ -15,7 +15,6 @@ deploy:
     namespace: elastic-system
     valuesDirectory: deploy/values
     runTests: false
-    cleanupTests: false
     helmTimeout: 300
     charts:
       ## If you need to just do cruds, comment out the operator-2 and uncomment operator-1
