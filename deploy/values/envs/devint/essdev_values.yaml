@@ -13,4 +13,4 @@ config:
   containerRegistry: "{{ pipeline.maxar.docker.registry }}"
 
 imagePullSecrets:
-  - name: {{ pipeline.image_pull_secrets.default | quote }}
+  - name: "{{ pipeline.image_pull_secrets.default }}"
