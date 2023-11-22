@@ -11,7 +11,7 @@ deploy:
   properties:
     enableValuesInterpolation: true
     force: false
-    helmVersion: '3'
+    helmVersion: '3.10'
     namespace: elastic-system
     valuesDirectory: deploy/values
     runTests: false
