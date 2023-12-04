@@ -7,3 +7,10 @@ image:
   name: operator
   repository: "{{ pipeline.maxar.docker.registry }}/eck/eck-operator"
   tag: 2.10.0
+
+  config:
+  containerRepository: "{{ pipeline.maxar.docker.registry }}"
+  containerRegistry: "{{ pipeline.maxar.docker.registry }}"
+
+imagePullSecrets:
+  - name: "{{ pipeline.image_pull_secrets.default }}"
