@@ -57,7 +57,7 @@ spec:
   
   # Reference to ECK-managed Fleet Server instance.
   #
-  feetServerRef:
+  fleetServerRef:
     name: mon-fleet-server
     # Optional namespace reference to Fleet Server instance.
     # If not specified, then the namespace of the Agent instance
