@@ -26,7 +26,7 @@ deploy:
     devint:
       targets:
         essdev-k8s-commercial-dev:
-          active: false
+          active: true
           properties:
             charts:
               # If you need to just do cruds, comment out the operator-2 and uncomment operator-1
@@ -40,7 +40,7 @@ deploy:
               #   values:
               #     - deploy/values/envs/devint/essdev_values.yaml
               elastic-operator-2:
-                active: true
+                active: false
                 sort: 1
                 force: false
                 path: deploy/eck-operator
@@ -48,6 +48,16 @@ deploy:
                 appendNamespace: false
                 values:
                   - deploy/values/envs/devint/essdev_values.yaml
+              ess-monitoring-singleton:
+                active: true
+                sort: 2
+                force: false
+                path: deploy/eck-stack/eck-agent
+                name: eck-agent
+                appendNamespace: false
+                values:
+                  - deploy/values/envs/devint/essdev_singleton.yaml
+
     shared-services:
       targets:
         ess-k8s-commercial-shared-services:
@@ -96,7 +106,7 @@ deploy:
                 values:
                   - deploy/values/envs/sharedservices/govcloud_values.yaml
         ess-k8s-sc2s-shared-services:
-          active: true
+          active: false
           properties:
             charts:
              # If you need to just do cruds, comment out the operator-2 and uncomment operator-1
