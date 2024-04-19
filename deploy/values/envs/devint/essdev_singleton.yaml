@@ -64,6 +64,7 @@ spec:
     # will be assumed.
     #
     namespace: elastic
+  mode: fleet
 
   # DaemonSet, StatefulSet, or singleton specification for Agent.
   # At least one is required of [daemonSet, deployment, statefulSet].
