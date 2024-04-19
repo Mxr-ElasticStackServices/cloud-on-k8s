@@ -52,7 +52,7 @@ deploy:
                 active: true
                 sort: 2
                 force: false
-                path: deploy/eck-stack/eck-agent
+                path: deploy/eck-stack/charts/eck-agent
                 name: ess-monitoring-singleton
                 appendNamespace: false
                 values:
