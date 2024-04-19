@@ -53,7 +53,7 @@ deploy:
                 sort: 2
                 force: false
                 path: deploy/eck-stack/eck-agent
-                name: eck-agent
+                name: ess-monitoring-singleton
                 appendNamespace: false
                 values:
                   - deploy/values/envs/devint/essdev_singleton.yaml
