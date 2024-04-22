@@ -47,8 +47,8 @@ spec:
 
   # Reference to ECK-managed Elasticsearch instance.
   #
-  elasticsearchRefs:
-  - name: eck-elasticsearch
+  # elasticsearchRefs:
+  # - name: eck-elasticsearch
     # Optional namespace reference to Elasticsearch instance.
     # If not specified, then the namespace of the Agent instance
     # will be assumed.
