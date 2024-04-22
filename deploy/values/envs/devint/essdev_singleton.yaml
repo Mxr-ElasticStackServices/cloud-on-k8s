@@ -47,13 +47,13 @@ spec:
 
   # Reference to ECK-managed Elasticsearch instance.
   #
-  elasticsearchRefs:
-  - name: mon
-    # Optional namespace reference to Elasticsearch instance.
-    # If not specified, then the namespace of the Agent instance
-    # will be assumed.
-    #
-    namespace: elastic
+  elasticsearchRefs: []
+  # - name: mon
+  #   # Optional namespace reference to Elasticsearch instance.
+  #   # If not specified, then the namespace of the Agent instance
+  #   # will be assumed.
+  #   #
+  #   namespace: elastic
   
   # Reference to ECK-managed Fleet Server instance.
   #
