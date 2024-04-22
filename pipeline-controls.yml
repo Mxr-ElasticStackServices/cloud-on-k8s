@@ -54,6 +54,7 @@ deploy:
                 force: false
                 path: deploy/eck-stack/charts/eck-agent
                 name: ess-monitoring-singleton
+                namespace: elastic
                 appendNamespace: false
                 values:
                   - deploy/values/envs/devint/essdev_singleton.yaml
