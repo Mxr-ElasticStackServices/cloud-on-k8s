@@ -47,23 +47,23 @@ spec:
 
   # Reference to ECK-managed Elasticsearch instance.
   #
-  # elasticsearchRefs:
-  # - name: mon
+  elasticsearchRefs:
+  - name: mon
     # Optional namespace reference to Elasticsearch instance.
     # If not specified, then the namespace of the Agent instance
     # will be assumed.
     #
-    # namespace: elastic
+    namespace: elastic
   
   # Reference to ECK-managed Fleet Server instance.
   #
-  fleetServerRef:
-    name: mon-fleet-server
+  # fleetServerRef:
+  #   name: mon-fleet-server
     # Optional namespace reference to Fleet Server instance.
     # If not specified, then the namespace of the Agent instance
     # will be assumed.
     #
-    namespace: elastic
+    # namespace: elastic
   mode: fleet
 
   # DaemonSet, StatefulSet, or singleton specification for Agent.
