@@ -49,7 +49,7 @@ deploy:
                 values:
                   - deploy/values/envs/devint/essdev_values.yaml
               ess-monitoring-singleton:
-                active: true
+                active: false
                 sort: 2
                 force: false
                 path: deploy/eck-stack/charts/eck-agent
@@ -59,7 +59,7 @@ deploy:
                 values:
                   - deploy/values/envs/devint/essdev_singleton.yaml
               ess-monitoring-daemonset:
-                active: true
+                active: false
                 sort: 2
                 force: false
                 path: deploy/eck-stack/charts/eck-agent
@@ -68,6 +68,16 @@ deploy:
                 appendNamespace: false
                 values:
                   - deploy/values/envs/devint/essdev_daemonset.yaml
+              kubernetes-elastic-agent:
+                active: true
+                sort: 2
+                force: false
+                path: deploy/eck-stack/charts/eck-agent
+                name: kubernetes-elastic-agent
+                namespace: kube-system
+                appendNamespace: false
+                values:
+                  - deploy/values/envs/devint/essdev_kubernetes_elastic_agent.yaml
     shared-services:
       targets:
         ess-k8s-commercial-shared-services:
