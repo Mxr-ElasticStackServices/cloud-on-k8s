@@ -30,7 +30,7 @@ annotations: {}
 
 spec:
   # policyID determines into which Agent Policy this Agent will be enrolled.
-  policyID: ess-singleton-monitoring
+  policyID: ce3c3a79-a359-48c9-815e-98005d1b21f3
 
   # Referenced resources are below and depending on the setup, at least one is required for a functional Agent.
   # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-elastic-agent-fleet-configuration.html#k8s-elastic-agent-fleet-configuration-setting-referenced-resources
