@@ -165,6 +165,7 @@ clusterRole:
     - statefulsets
     - deployments
     - replicasets
+    - daemonsets
     verbs:
     - "get"
     - "list"
@@ -179,7 +180,29 @@ clusterRole:
     - "batch"
     resources:
     - jobs
+    - cronjobs
     verbs:
     - "get"
     - "list"
     - "watch"
+  - nonResourceURLs:
+      - "/metrics"
+    verbs:
+      - get
+  # Needed for cloudbeat
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources:
+      - clusterrolebindings
+      - clusterroles
+      - rolebindings
+      - roles
+    verbs: ["get", "list", "watch"]
+  # Needed for cloudbeat
+  - apiGroups: ["policy"]
+    resources:
+      - podsecuritypolicies
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [ "storage.k8s.io" ]
+    resources:
+      - storageclasses
+    verbs: [ "get", "list", "watch" ]
