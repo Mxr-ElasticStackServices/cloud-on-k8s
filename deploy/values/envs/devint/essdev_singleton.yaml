@@ -63,7 +63,7 @@ spec:
     # If not specified, then the namespace of the Agent instance
     # will be assumed.
     #
-    namespace: elastic
+    # namespace: elastic
   mode: fleet
 
   # DaemonSet, StatefulSet, or singleton specification for Agent.
@@ -154,7 +154,7 @@ clusterRole:
   - apiGroups: ["extensions"]
     resources:
       - replicasets
-    verbs: 
+    verbs:
     - "get"
     - "list"
     - "watch"

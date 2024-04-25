@@ -30,7 +30,7 @@ annotations: {}
 
 spec:
   # policyID determines into which Agent Policy this Agent will be enrolled.
-  policyID: ess-daemonset-monitoring
+  policyID: 99826a3c-aea2-4315-b734-c9375cc87131
 
   # Referenced resources are below and depending on the setup, at least one is required for a functional Agent.
   # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-elastic-agent-fleet-configuration.html#k8s-elastic-agent-fleet-configuration-setting-referenced-resources
@@ -47,23 +47,24 @@ spec:
 
   # Reference to ECK-managed Elasticsearch instance.
   #
-  elasticsearchRefs:
-  - name: mon
+  elasticsearchRefs: []
+  # - name: mon
     # Optional namespace reference to Elasticsearch instance.
     # If not specified, then the namespace of the Agent instance
     # will be assumed.
     #
-    namespace: elastic
+    # namespace: elastic
   
   # Reference to ECK-managed Fleet Server instance.
   #
-  feetServerRef:
+  fleetServerRef:
     name: mon-fleet-server
     # Optional namespace reference to Fleet Server instance.
     # If not specified, then the namespace of the Agent instance
     # will be assumed.
     #
     namespace: elastic
+  mode: fleet
 
   # DaemonSet, StatefulSet, or Deployment specification for Agent.
   # At least one is required of [daemonSet, deployment, statefulSet].
@@ -153,7 +154,7 @@ clusterRole:
   - apiGroups: ["extensions"]
     resources:
       - replicasets
-    verbs: 
+    verbs:
     - "get"
     - "list"
     - "watch"
