@@ -29,6 +29,7 @@ labels: {}
 annotations: {}
 
 spec:
+  image: "{{ .Values.maxar.docker.registry }}/beats/elastic-agent:8.11.3"
   # policyID determines into which Agent Policy this Agent will be enrolled.
   policyID: 99826a3c-aea2-4315-b734-c9375cc87131
 

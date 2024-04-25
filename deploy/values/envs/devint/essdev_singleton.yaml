@@ -29,7 +29,7 @@ labels: {}
 annotations: {}
 
 spec:
-  # policyID determines into which Agent Policy this Agent will be enrolled.
+  image: "{{ .Values.maxar.docker.registry }}/beats/elastic-agent:8.11.3"  # policyID determines into which Agent Policy this Agent will be enrolled.
   policyID: ce3c3a79-a359-48c9-815e-98005d1b21f3
 
   # Referenced resources are below and depending on the setup, at least one is required for a functional Agent.
