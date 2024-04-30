@@ -59,7 +59,7 @@ deploy:
                 values:
                   - deploy/values/envs/devint/essdev_singleton.yaml
               ess-monitoring-daemonset:
-                active: false
+                active: true
                 sort: 2
                 force: false
                 path: deploy/eck-stack/charts/eck-agent
@@ -69,7 +69,7 @@ deploy:
                 values:
                   - deploy/values/envs/devint/essdev_daemonset.yaml
               kubernetes-elastic-agent:
-                active: true
+                active: false
                 sort: 2
                 force: false
                 path: deploy/eck-stack/charts/eck-agent
