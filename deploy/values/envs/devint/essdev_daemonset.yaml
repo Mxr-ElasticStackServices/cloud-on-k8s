@@ -82,6 +82,8 @@ spec:
   daemonSet:
     podTemplate:
       spec:
+        hostNetwork: true
+        dnsPolicy: ClusterFirstWithHostNet
         containers:
         - name: agent
           securityContext:
