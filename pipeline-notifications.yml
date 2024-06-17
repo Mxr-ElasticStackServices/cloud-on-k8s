@@ -1,39 +1,38 @@
----
 # Configure notifications:
 notification:
   notifications:
-    ess_pipeline_deploys_slack:
-      type: slack_message
-      active: true
-      properties:
-        message: '{{APP_NAME}} - {{EVENT}}
-{{APP_NAME}} pipeline deploy (https://github.com/{{GIT_ORG}}/{{GIT_REPO}}) has reached {{EVENT}} No intervention is needed.
-See {{BUILD_URL}}/consoleFull
-{{JOB_NAME}} #{{BUILD_NUMBER}}'
-        channels:
-          - 'Maxar-Corp/ess_pipeline_deploys'
-        events:
-          - pipelineStarted
-          - pipelineSucceeded
-          - devintStarted
-          - devintSucceeded
-          - shared-servicesStarted
-          - shared-servicesSucceeded
-    ess_pipeline_deploys_failures_slack:
-      type: slack_message
-      active: true
-      properties:
-        message: '{{APP_NAME}} - {{EVENT}} - FAILURE or PAUSE!
-{{APP_NAME}} pipeline deploy (https://github.com/{{GIT_ORG}}/{{GIT_REPO}}) has reached {{EVENT}}, and has failed or paused, intervention or modification to the code is needed.
-See {{BUILD_URL}}/consoleFull
-{{JOB_NAME}} #{{BUILD_NUMBER}}'
-        channels:
-          - 'Maxar-Corp/ess_pipeline_deploys'
-        events:
-          - pipelineFailed
-          - pipelinePaused
-          - devintFailed
-          - shared-servicesFailed
+    #     ess_pipeline_deploys_slack:
+    #       type: slack_message
+    #       active: true
+    #       properties:
+    #         message: '{{APP_NAME}} - {{EVENT}}
+    # {{APP_NAME}} pipeline deploy (https://github.com/{{GIT_ORG}}/{{GIT_REPO}}) has reached {{EVENT}} No intervention is needed.
+    # See {{BUILD_URL}}/consoleFull
+    # {{JOB_NAME}} #{{BUILD_NUMBER}}'
+    #         channels:
+    #           - 'Maxar-Corp/ess_pipeline_deploys'
+    #         events:
+    #           - pipelineStarted
+    #           - pipelineSucceeded
+    #           - devintStarted
+    #           - devintSucceeded
+    #           - shared-servicesStarted
+    #           - shared-servicesSucceeded
+    #     ess_pipeline_deploys_failures_slack:
+    #       type: slack_message
+    #       active: true
+    #       properties:
+    #         message: '{{APP_NAME}} - {{EVENT}} - FAILURE or PAUSE!
+    # {{APP_NAME}} pipeline deploy (https://github.com/{{GIT_ORG}}/{{GIT_REPO}}) has reached {{EVENT}}, and has failed or paused, intervention or modification to the code is needed.
+    # See {{BUILD_URL}}/consoleFull
+    # {{JOB_NAME}} #{{BUILD_NUMBER}}'
+    #         channels:
+    #           - 'Maxar-Corp/ess_pipeline_deploys'
+    #         events:
+    #           - pipelineFailed
+    #           - pipelinePaused
+    #           - devintFailed
+    #           - shared-servicesFailed
     requestor_email:
       type: email
       active: true
@@ -41,14 +40,14 @@ See {{BUILD_URL}}/consoleFull
         subject: '{{APP_NAME}} pipeline deploy has reached {{EVENT}}'
         message: '<p>{{APP_NAME}} pipeline deploy (<a href="https://github.com/{{GIT_ORG}}/{{GIT_REPO}}">{{GIT_ORG}}/{{GIT_REPO}}</a>) has reached {{EVENT}}, no intervention is needed.</p><h3>See <a href="{{BUILD_URL}}/consoleFull">{{JOB_NAME}} #{{BUILD_NUMBER}}</a>.</h3>'
         to:
-          - requestor
+        - requestor
         events:
-          - pipelineStarted
-          - pipelineSucceeded
-          - devintStarted
-          - devintSucceeded
-          - shared-servicesStarted
-          - shared-servicesSucceeded
+        - pipelineStarted
+        - pipelineSucceeded
+        - devintStarted
+        - devintSucceeded
+        - shared-servicesStarted
+        - shared-servicesSucceeded
     requestor_email_failure:
       type: email
       active: true
@@ -56,12 +55,12 @@ See {{BUILD_URL}}/consoleFull
         subject: '{{APP_NAME}} pipeline deploy has reached {{EVENT}}'
         message: '<p>{{APP_NAME}} pipeline deploy (<a href="https://github.com/{{GIT_ORG}}/{{GIT_REPO}}">{{GIT_ORG}}/{{GIT_REPO}}</a>) has reached {{EVENT}}, and has failed or paused, intervention or modification to the code is needed.</p><h3>See <a href="{{BUILD_URL}}/consoleFull">{{JOB_NAME}} #{{BUILD_NUMBER}}</a>.</h3>'
         to:
-          - requestor
+        - requestor
         events:
-          - pipelineFailed
-          - pipelinePaused
-          - devintFailed
-          - shared-servicesFailed
+        - pipelineFailed
+        - pipelinePaused
+        - devintFailed
+        - shared-servicesFailed
     elasticstackservices_email:
       type: email
       active: true
@@ -69,10 +68,10 @@ See {{BUILD_URL}}/consoleFull
         subject: '{{APP_NAME}} pipeline deploy has reached {{EVENT}}'
         message: '<p>{{APP_NAME}} pipeline deploy (<a href="https://github.com/{{GIT_ORG}}/{{GIT_REPO}}">{{GIT_ORG}}/{{GIT_REPO}}</a>) has reached {{EVENT}}, no intervention is needed.</p><h3>See <a href="{{BUILD_URL}}/consoleFull">{{JOB_NAME}} #{{BUILD_NUMBER}}</a>.</h3>'
         to:
-          - DL-IT-ElasticStackServices@digitalglobe.com
+        - DL-IT-ElasticStackServices@digitalglobe.com
         events:
-          - pipelineStarted
-          - shared-servicesSucceeded
+        - pipelineStarted
+        - shared-servicesSucceeded
     elasticstackservices_email_failure:
       type: email
       active: true
@@ -80,7 +79,7 @@ See {{BUILD_URL}}/consoleFull
         subject: '{{APP_NAME}} pipeline deploy has reached {{EVENT}}'
         message: '<p>{{APP_NAME}} pipeline deploy (<a href="https://github.com/{{GIT_ORG}}/{{GIT_REPO}}">{{GIT_ORG}}/{{GIT_REPO}}</a>) has reached {{EVENT}}, and has failed or paused, intervention or modification to the code is needed.</p><h3>See <a href="{{BUILD_URL}}/consoleFull">{{JOB_NAME}} #{{BUILD_NUMBER}}</a>.</h3>'
         to:
-          - DL-IT-ElasticStackServices@digitalglobe.com
+        - DL-IT-ElasticStackServices@digitalglobe.com
         events:
-          - pipelineFailed
-          - pipelinePaused
+        - pipelineFailed
+        - pipelinePaused
