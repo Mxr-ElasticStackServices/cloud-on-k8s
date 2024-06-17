@@ -49,7 +49,7 @@ deploy:
                 values:
                   - deploy/values/envs/devint/essdev_values.yaml
               ess-ecs-agent:
-                active: false
+                active: true
                 sort: 2
                 force: false
                 path: deploy/eck-stack/charts/eck-agent
