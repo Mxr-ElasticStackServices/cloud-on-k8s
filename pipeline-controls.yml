@@ -47,7 +47,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                - deploy/values/envs/devint/essdev_values.yaml
+                  - deploy/values/envs/devint/essdev_values.yaml
               ess-ecs-agent:
                 active: false
                 sort: 2
@@ -57,7 +57,7 @@ deploy:
                 namespace: elastic
                 appendNamespace: false
                 values:
-                - deploy/values/envs/devint/essdev_ecs_agent.yaml
+                  - deploy/values/envs/devint/essdev_ecs_agent.yaml
               ess-monitoring-singleton:
                 active: false
                 sort: 2
@@ -67,7 +67,7 @@ deploy:
                 namespace: elastic
                 appendNamespace: false
                 values:
-                - deploy/values/envs/devint/essdev_singleton.yaml
+                  - deploy/values/envs/devint/essdev_singleton.yaml
               ess-monitoring-daemonset:
                 active: true
                 sort: 2
@@ -77,7 +77,7 @@ deploy:
                 namespace: elastic
                 appendNamespace: false
                 values:
-                - deploy/values/envs/devint/essdev_daemonset.yaml
+                  - deploy/values/envs/devint/essdev_daemonset.yaml
               kubernetes-elastic-agent:
                 active: false
                 sort: 2
@@ -87,7 +87,7 @@ deploy:
                 namespace: kube-system
                 appendNamespace: false
                 values:
-                - deploy/values/envs/devint/essdev_kubernetes_elastic_agent.yaml
+                  - deploy/values/envs/devint/essdev_kubernetes_elastic_agent.yaml
     shared-services:
       targets:
         ess-k8s-commercial-shared-services:
@@ -111,7 +111,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                - deploy/values/envs/sharedservices/commercial_values.yaml
+                  - deploy/values/envs/sharedservices/commercial_values.yaml
         ess-k8s-govcloud-shared-services:
           active: false
           properties:
@@ -134,12 +134,12 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                - deploy/values/envs/sharedservices/govcloud_values.yaml
+                  - deploy/values/envs/sharedservices/govcloud_values.yaml
         ess-k8s-sc2s-shared-services:
           active: false
           properties:
             charts:
-              # If you need to just do cruds, comment out the operator-2 and uncomment operator-1
+             # If you need to just do cruds, comment out the operator-2 and uncomment operator-1
               # elastic-operator-1:
               #   active: false
               #   sort: 0
@@ -157,7 +157,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                - deploy/values/envs/sharedservices/sc2s_values.yaml
+                  - deploy/values/envs/sharedservices/sc2s_values.yaml
         ess-k8s-v3r-shared-services:
           active: false
           properties:
@@ -180,7 +180,7 @@ deploy:
                 name: elastic-operator
                 appendNamespace: false
                 values:
-                - deploy/values/envs/sharedservices/v3r_values.yaml
+                  - deploy/values/envs/sharedservices/v3r_values.yaml
 variables:
   sources:
 #    sharedservices-commercial:
