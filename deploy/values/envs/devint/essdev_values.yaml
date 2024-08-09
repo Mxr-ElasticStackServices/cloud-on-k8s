@@ -9,8 +9,10 @@ image:
   tag: 2.11.1
 
 config:
-  containerRepository: "{{ pipeline.maxar.docker.registry }}"
-  containerRegistry: "{{ pipeline.maxar.docker.registry }}"
+  # containerRepository: "{{ pipeline.maxar.docker.registry }}"
+  containerRepository: "docker.elastic.co"
+  # containerRegistry: "{{ pipeline.maxar.docker.registry }}"
+  containerRegistry: "docker.elastic.co"
 
 imagePullSecrets:
   - name: "{{ pipeline.image_pull_secrets.default }}"
