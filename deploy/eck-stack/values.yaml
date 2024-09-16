@@ -8,7 +8,7 @@ eck-elasticsearch:
   enabled: true
   # This is adjusting the full name of the elasticsearch resource so that both the eck-elasticsearch
   # and the eck-kibana chart work together by default in the eck-stack chart.
-  fullnameOverride: elasticsearch
+  fullnameOverride: testing
 
 # If enabled, will use the eck-kibana chart and deploy a Kibana resource.
 #
@@ -18,7 +18,7 @@ eck-kibana:
     # This is also adjusting the kibana reference to the elasticsearch resource named previously so that
     # both the eck-elasticsearch and the eck-kibana chart work together by default in the eck-stack chart.
     elasticsearchRef:
-      name: elasticsearch
+      name: testing
 
 # If enabled, will use the eck-agent chart and deploy an Elastic Agent instance.
 #
@@ -28,7 +28,7 @@ eck-agent:
 # If enabled, will use the eck-fleet-server chart and deploy a Fleet Server resource.
 #
 eck-fleet-server:
-  enabled: false
+  enabled: true
 
 # If enabled, will use the eck-beats chart and deploy a Beats resource.
 #
