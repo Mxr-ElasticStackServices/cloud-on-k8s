@@ -48,6 +48,29 @@ deploy:
                 appendNamespace: false
                 values:
                   - deploy/values/envs/devint/essdev_values.yaml
+        essdev-eks-k8s-commercial-dev:
+          active: true
+          properties:
+            charts:
+              # If you need to just do cruds, comment out the operator-2 and uncomment operator-1
+              # elastic-operator-1:
+              #   active: false
+              #   sort: 0
+              #   force: false
+              #   path: deploy/eck-operator/charts/eck-operator-crds/
+              #   name: elastic-operator
+              #   appendNamespace: false
+              #   values:
+              #     - deploy/values/envs/devint/essdev_values.yaml
+              elastic-operator-2:
+                active: true
+                sort: 1
+                force: false
+                path: deploy/eck-operator
+                name: elastic-operator
+                appendNamespace: false
+                values:
+                  - deploy/values/envs/devint/essdev_values.yaml
     shared-services:
       targets:
         ess-k8s-commercial-shared-services:
