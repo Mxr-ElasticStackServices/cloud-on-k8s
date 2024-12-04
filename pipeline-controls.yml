@@ -18,8 +18,8 @@ deploy:
     helmTimeout: 300
     charts:
       # If you need to just do cruds, comment out the operator-2 and uncomment operator-1
-      elastic-operator-1:
-        path: deploy/eck-operator/charts/eck-operator-crds/
+      # elastic-operator-1:
+      #   path: deploy/eck-operator/charts/eck-operator-crds/
       elastic-operator:
         path: deploy/eck-operator/
   deploys:
@@ -39,7 +39,7 @@ deploy:
                 appendNamespace: false
                 values:
                   - deploy/values/envs/int/essdev_values.yaml
-              elastic-operator:
+              elastic-operator-2:
                 active: false
                 sort: 1
                 force: false
@@ -62,7 +62,7 @@ deploy:
                 appendNamespace: false
                 values:
                   - deploy/values/envs/int/essdev_values.yaml
-              elastic-operator-2:
+              elastic-operator:
                 active: true
                 sort: 1
                 force: false
