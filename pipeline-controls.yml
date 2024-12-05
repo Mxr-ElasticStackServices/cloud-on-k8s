@@ -33,6 +33,6 @@ deploy:
                 force: false
                 path: deploy/eck-operator/charts/eck-operator-crds/
                 name: elastic-operator
-                appendNamespace: false
+                appendNamespace: true
                 values:
                   - deploy/values/envs/int/essdev_values.yaml
