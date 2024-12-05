@@ -28,11 +28,11 @@ deploy:
           properties:
             charts:
               elastic-operator-1:
-                active: false
+                active: true
                 sort: 0
                 force: false
                 path: deploy/eck-operator/charts/eck-operator-crds/
-                name: elastic-operator
+                name: elastic-operator-1
                 appendNamespace: true
                 values:
                   - deploy/values/envs/int/essdev_values.yaml
