@@ -3,7 +3,8 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "eck-operator.fullname" . }}
+  name: "elastic-operator"
+  release-name: ""
   namespace: {{ .Release.Namespace }}
   {{- with .Values.statefulsetAnnotations }}
   annotations:
