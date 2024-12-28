@@ -14,11 +14,11 @@
 # fullnameOverride will override both the release name, and the chart name,
 # and will name the Fleet Server resource exactly as specified.
 #
-fullnameOverride: "testing"
+# fullnameOverride: "quickstart"
 
 # Version of Elastic Fleet Server.
 #
-version: 8.15.1
+version: 8.17.0-SNAPSHOT
 
 # Labels that will be applied to Elastic Fleet Server.
 #
@@ -38,23 +38,23 @@ spec:
   # Reference to ECK-managed Kibana resource.
   #
   kibanaRef:
-    name: testing
+    name: eck-kibana
     # Optional namespace reference to Kibana resource.
     # If not specified, then the namespace of the Fleet Server resource
     # will be assumed.
     #
-    namespace: elastic
+    # namespace: default
 
   # References to ECK-managed Elasticsearch resource.
   # This is required for fleet server.
   #
   elasticsearchRefs:
-  - name: testing
+  - name: eck-elasticsearch
     # Optional namespace reference to Elasticsearch resource.
     # If not specified, then the namespace of the Fleet Server resource
     # will be assumed.
     #
-    namespace: elastic
+    # namespace: default
   
   # Daemonset, or Deployment specification for the type of Fleet Server specified.
   # At least one is required of [daemonSet, deployment].
@@ -75,7 +75,7 @@ spec:
 #
 serviceAccount:
   name: fleet-server
-  namespace: elastic
+  # namespace: optional-namespace
 
 # ClusterRoleBinding to be used by Elastic Fleet Server. Similar to ServiceAccount, this is required in some scenarios.
 # ref: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-elastic-agent-fleet-configuration.html#k8s-elastic-agent-fleet-configuration-role-based-access-control
@@ -85,7 +85,7 @@ clusterRoleBinding:
   subjects:
   - kind: ServiceAccount
     name: fleet-server
-    namespace: elastic
+    # namespace: default
   roleRef:
     kind: ClusterRole
     name: fleet-server

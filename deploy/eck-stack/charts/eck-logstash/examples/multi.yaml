@@ -1,6 +1,6 @@
 ---
 # values corresponding to config/recipes/logstash/logstash-multi.yaml
-version: 8.15.1
+version: 8.17.0-SNAPSHOT
 
 pipelines:
   - pipeline.id: main

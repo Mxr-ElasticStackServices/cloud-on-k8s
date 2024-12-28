@@ -18,7 +18,7 @@
 
 # Version of Kibana.
 #
-version: 8.15.1
+version: 8.17.0-SNAPSHOT
 
 # Labels that will be applied to Kibana.
 #
@@ -36,12 +36,12 @@ spec:
   # Reference to ECK-managed Elasticsearch resource.
   #
   elasticsearchRef:
-    name: testing
+    name: eck-elasticsearch
     # Optional namespace reference to Elasticsearch resource.
     # If not specified, then the namespace of the Kibana resource
     # will be assumed.
     #
-    namespace: elastic
+    # namespace: default
 
 # Settings for controlling Kibana ingress. Enabling ingress will expose your Kibana instance
 # to the public internet, and as such is disabled by default.
@@ -59,7 +59,7 @@ spec:
 # - Nginx: https://kubernetes.github.io/ingress-nginx/
 #
 ingress:
-  enabled: true
+  enabled: false
 
   # Annotations that will be applied to the Ingress resource. Note that some ingress controllers are controlled via annotations.
   # 
@@ -70,8 +70,7 @@ ingress:
   #   kubernetes.io/ingress.class: gce-internal # Configures the Ingress resource to use the GCE ingress controller and create an internal Application Load Balancer.
   #   kubernetes.io/ingress.class: nginx        # Configures the Ingress resource to use the NGINX ingress controller.
   #
-  annotations:
-    kubernetes.io/ingress.class: nginx
+  annotations: {}
 
   # Labels that will be applied to the Ingress resource.
   #
